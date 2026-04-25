@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecosystem — The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">AI × Social Good</a>
+  <ul class="nav-links">
+    <li><a href="/#domains">Domains</a></li>
+    <li><a href="/resources">Resources</a></li>
+    <li><a href="/risks">Risks</a></li>
+    <li><a href="/ecosystem" class="active">Ecosystem</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/learn">Learn</a></li>
+  </ul>
+  <a class="nav-cta" href="/#nyc">Join the Hub →</a>
+</nav>
+
+<div class="page-body">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span>Ecosystem</div>
+    <h1 class="page-title">The <em>ecosystem</em></h1>
+    <p class="page-subtitle">Who funds, convenes, builds infrastructure, and shapes policy in this space. Different from the orgs doing direct work — this is the layer that determines whether the field survives.</p>
+  </div>
+
+  <div class="section-wrap" style="padding-bottom:0;">
+    <div class="filter-bar" id="categoryFilters">
+      <button class="filter-btn active" data-cat="all">All</button>
+      <button class="filter-btn" data-cat="funder">Funders</button>
+      <button class="filter-btn" data-cat="convener">Conveners</button>
+      <button class="filter-btn" data-cat="field-builder">Field-builders</button>
+      <button class="filter-btn" data-cat="governance">Governance</button>
+      <button class="filter-btn" data-cat="vc">VC</button>
+    </div>
+  </div>
+
+  <div id="ecosystemBody" class="section-wrap">
+    <div style="color:var(--muted); font-size:12px;">Loading…</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a></div>
+  <div class="footer-note"><a href="/resources">Resources</a> · <a href="/events">Events</a> · <a href="/risks">Risks</a></div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const CAT_LABELS = {
+  funder: 'Funders', convener: 'Conveners & Field-builders',
+  'field-builder': 'Conveners & Field-builders', governance: 'Governance & Ethics', vc: 'Venture & Growth',
+};
+
+const CAT_ORDER = ['funder', 'convener', 'field-builder', 'governance', 'vc'];
+
+let allEntries = [];
+let activeFilter = 'all';
+
+async function init() {
+  const { data } = await db.from('ecosystem').select('*').eq('status','published');
+  allEntries = data || [];
+
+  document.querySelectorAll('#categoryFilters .filter-btn').forEach(btn => {
+    btn.onclick = () => {
+      activeFilter = btn.dataset.cat;
+      document.querySelectorAll('#categoryFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+  });
+
+  render();
+}
+
+function render() {
+  const filtered = activeFilter === 'all' ? allEntries : allEntries.filter(e => e.ecosystem_category === activeFilter);
+  const body = document.getElementById('ecosystemBody');
+
+  if (filtered.length === 0) {
+    body.innerHTML = '<div class="empty">Nothing in this category yet.</div>';
+    return;
+  }
+
+  if (activeFilter !== 'all') {
+    body.innerHTML = `<div class="card-grid-4">${filtered.map(cardHTML).join('')}</div>`;
+    return;
+  }
+
+  // Grouped view
+  const seen = new Set();
+  let html = '';
+  CAT_ORDER.forEach(cat => {
+    const label = CAT_LABELS[cat];
+    if (seen.has(label)) return;
+    seen.add(label);
+    const cats = cat === 'convener' ? ['convener','field-builder'] : [cat];
+    const group = allEntries.filter(e => cats.includes(e.ecosystem_category));
+    if (group.length === 0) return;
+    html += `
+      <div style="margin-bottom:36px;">
+        <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">${esc(label)}</div>
+        <div class="card-grid-4">${group.map(cardHTML).join('')}</div>
+      </div>`;
+  });
+  body.innerHTML = html;
+}
+
+function cardHTML(e) {
+  return `<div class="ecosystem-card">
+    <div class="eco-role">${esc(e.ecosystem_category||'')}${e.nyc ? ' · <span style="color:var(--teal)">NYC</span>' : ''}</div>
+    <div class="eco-name">${esc(e.name)}</div>
+    <div class="eco-desc">${esc(e.description||'')}</div>
+    ${e.url ? `<a class="eco-link" href="${esc(e.url)}" target="_blank">${esc(e.url.replace(/^https?:\/\//,''))} →</a>` : ''}
+  </div>`;
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resources — The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">AI × Social Good</a>
+  <ul class="nav-links">
+    <li><a href="/#domains">Domains</a></li>
+    <li><a href="/resources" class="active">Resources</a></li>
+    <li><a href="/risks">Risks</a></li>
+    <li><a href="/ecosystem">Ecosystem</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/learn">Learn</a></li>
+  </ul>
+  <a class="nav-cta" href="/#nyc">Join the Hub →</a>
+</nav>
+
+<div class="page-body">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span>Resources</div>
+    <h1 class="page-title">Field <em>resources</em></h1>
+    <p class="page-subtitle">Frameworks, research, journalism, and tools the field actually uses. Curated for practitioners, funders, and technologists — not for algorithm optimization.</p>
+  </div>
+
+  <div class="section-wrap">
+    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:28px;">
+      <div class="filter-bar" id="typeFilters">
+        <button class="filter-btn active" data-type="all">All</button>
+      </div>
+      <label class="nyc-toggle" id="criticalToggle">
+        <span class="nyc-dot"></span>Critical only
+      </label>
+    </div>
+
+    <div class="card-grid-3" id="resourceGrid">
+      <div style="color:var(--muted); font-size:12px; grid-column:1/-1;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a></div>
+  <div class="footer-note"><a href="/ecosystem">Ecosystem</a> · <a href="/learn">Learn</a> · <a href="/events">Events</a></div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let allResources = [];
+let activeType = 'all';
+let criticalOnly = false;
+
+const TYPE_LABELS = {
+  research: 'Research', framework: 'Framework', journalism: 'Journalism',
+  report: 'Report', institute: 'Institute', journal: 'Journal',
+  newsletter: 'Newsletter', podcast: 'Podcast', coalition: 'Coalition',
+  summit: 'Summit', grants: 'Grants', funder: 'Funder', giving: 'Giving',
+  platform: 'Platform', education: 'Education', news: 'News', career: 'Career',
+};
+
+async function init() {
+  const { data } = await db.from('resources').select('*').eq('status','published').order('is_critical', {ascending:false}).order('title');
+  allResources = data || [];
+
+  // Build type filter buttons
+  const types = [...new Set(allResources.map(r => r.resource_type).filter(Boolean))].sort();
+  const filterBar = document.getElementById('typeFilters');
+  types.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.type = t;
+    btn.textContent = TYPE_LABELS[t] || t;
+    btn.onclick = () => setType(t, btn);
+    filterBar.appendChild(btn);
+  });
+
+  document.getElementById('criticalToggle').onclick = () => {
+    criticalOnly = !criticalOnly;
+    document.getElementById('criticalToggle').classList.toggle('active', criticalOnly);
+    render();
+  };
+
+  render();
+}
+
+function setType(type, btn) {
+  activeType = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render() {
+  let list = allResources;
+  if (activeType !== 'all') list = list.filter(r => r.resource_type === activeType);
+  if (criticalOnly) list = list.filter(r => r.is_critical);
+
+  const grid = document.getElementById('resourceGrid');
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No resources match this filter.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(r => {
+    const isRisk = (r.tags||[]).some(t => ['Bias','Accountability','Failures'].includes(t));
+    const tagsHTML = (r.tags||[]).map(t => `<span class="tag${isRisk?' tag-rust':''}">${esc(t)}</span>`).join('');
+    const criticalBadge = r.is_critical ? `<span style="font-size:9px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-left:6px;">★ Critical</span>` : '';
+    return `<a class="resource-card" href="${esc(r.url||'#')}" target="_blank">
+      ${r.year ? `<div class="card-year">${r.year}</div>` : ''}
+      <div class="card-type">${esc(TYPE_LABELS[r.resource_type]||r.resource_type||'')}${criticalBadge}</div>
+      <div class="card-name">${esc(r.title)}</div>
+      <div class="card-desc">${esc(r.description||'')}</div>
+      <div class="card-tags">${tagsHTML}</div>
+    </a>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>

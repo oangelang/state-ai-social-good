@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domain — The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">AI × Social Good</a>
+  <ul class="nav-links">
+    <li><a href="/#domains" class="active">Domains</a></li>
+    <li><a href="/resources">Resources</a></li>
+    <li><a href="/risks">Risks</a></li>
+    <li><a href="/ecosystem">Ecosystem</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/learn">Learn</a></li>
+  </ul>
+  <a class="nav-cta" href="/#nyc">Join the Hub →</a>
+</nav>
+
+<div class="page-body">
+  <div class="page-header" id="pageHeader">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span><a href="/#domains">Domains</a><span>›</span><span id="breadcrumbSlug">Loading…</span></div>
+    <h1 class="page-title" id="pageTitle">Loading…</h1>
+    <p class="page-subtitle" id="pageSubtitle"></p>
+  </div>
+
+  <!-- STATS -->
+  <div class="section-wrap" id="statsSection" style="padding-bottom:0;"></div>
+
+  <!-- FIELD INTELLIGENCE PANEL -->
+  <div class="section-wrap">
+    <div class="section-head">
+      <h2 class="section-title">Field <em>intelligence</em></h2>
+    </div>
+    <div class="panel-grid" id="panelGrid">
+      <div style="color:var(--muted); font-size:12px;">Loading…</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ORGANIZATIONS -->
+  <div class="section-wrap">
+    <div class="section-head">
+      <h2 class="section-title">Organizations <em>working here</em></h2>
+      <span class="section-meta" id="orgCount"></span>
+    </div>
+    <div class="card-grid-3" id="orgGrid">
+      <div style="color:var(--muted); font-size:12px;">Loading…</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RELATED EVENTS -->
+  <div class="section-wrap" id="eventsSection">
+    <div class="section-head">
+      <h2 class="section-title">Upcoming <em>events</em></h2>
+      <a class="nav-cta" href="/events" style="font-size:9px; padding:5px 10px;">All events →</a>
+    </div>
+    <div class="events-list" id="eventsList"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a></div>
+  <div class="footer-note"><a href="/resources">Resources</a> · <a href="/ecosystem">Ecosystem</a> · <a href="/events">Events</a></div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DOMAIN_LABELS = {
+  climate:      'Climate & Environment',
+  health:       'Health & Medicine',
+  ocean:        'Ocean & Water',
+  food:         'Food & Agriculture',
+  equity:       'Economic Equity',
+  education:    'Education & Access',
+  humanitarian: 'Humanitarian Response',
+  energy:       'Energy & Materials',
+};
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const slug = location.pathname.split('/').filter(Boolean).pop() || 'climate';
+
+async function init() {
+  const [{ data: domain }, { data: items }, { data: orgs }, { data: events }] = await Promise.all([
+    db.from('domains').select('*').eq('slug', slug).eq('status','published').single(),
+    db.from('domain_panel_items').select('*').eq('domain_slug', slug).eq('status','published').order('sort_order'),
+    db.from('organizations').select('*').eq('status','published').contains('domain_tags', [slug]),
+    db.from('events').select('*').eq('status','published').contains('domain_tags', [slug]).order('event_date', {ascending: true}),
+  ]);
+
+  const label = DOMAIN_LABELS[slug] || slug;
+  const words = label.split(' ');
+  const last = words.pop();
+  const titleHTML = words.length ? `${words.join(' ')} <em>${last}</em>` : `<em>${last}</em>`;
+
+  document.title = `${label} — The State of AI for Social Good`;
+  document.getElementById('breadcrumbSlug').textContent = label;
+  document.getElementById('pageTitle').innerHTML = titleHTML;
+
+  if (domain) {
+    const sdgs = (domain.sdgs || []).join(', ');
+    document.getElementById('statsSection').innerHTML = `
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-label">Deployed</div><div class="stat-val">${domain.deployed_count || '—'}</div></div>
+        ${sdgs ? `<div class="stat-box"><div class="stat-label">SDGs</div><div class="stat-val" style="font-size:22px;">${esc(sdgs)}</div></div>` : ''}
+      </div>`;
+  }
+
+  // Panel
+  const tried   = (items || []).filter(i => i.column_type === 'tried');
+  const caution = (items || []).filter(i => i.column_type === 'caution');
+  const open    = (items || []).filter(i => i.column_type === 'open');
+
+  document.getElementById('panelGrid').innerHTML = `
+    <div>
+      <div class="col-label tried">What's been tried</div>
+      ${tried.map(i => `<div class="panel-item">
+        ${i.org_name ? `<div class="item-org">${esc(i.org_name)}</div>` : ''}
+        ${esc(i.content)}
+        ${i.source_url ? `<a class="item-src" href="${esc(i.source_url)}" target="_blank">${esc(i.source_url.replace(/^https?:\/\//,''))}</a>` : ''}
+      </div>`).join('') || '<div class="empty">None yet</div>'}
+    </div>
+    <div>
+      <div class="col-label caution">Honest cautions</div>
+      ${caution.map(i => `<div class="panel-item warn">${esc(i.content)}</div>`).join('') || '<div class="empty">None yet</div>'}
+    </div>
+    <div>
+      <div class="col-label open">Open questions</div>
+      ${open.map(i => `<div class="panel-item q">${esc(i.content)}</div>`).join('') || '<div class="empty">None yet</div>'}
+    </div>`;
+
+  // Orgs
+  const orgList = orgs || [];
+  document.getElementById('orgCount').textContent = `${orgList.length} organizations`;
+  document.getElementById('orgGrid').innerHTML = orgList.length
+    ? orgList.map(o => `
+        <div class="org-card">
+          <span class="org-tier ${o.evidence_tier || 'research'}">${o.evidence_tier || 'research'}</span>
+          <div class="org-name">${esc(o.name)}</div>
+          <div class="org-desc">${esc(o.ai_use_case || o.description || '')}</div>
+          ${o.source_url ? `<a class="org-link" href="${esc(o.source_url)}" target="_blank">${esc(o.source_url.replace(/^https?:\/\//,''))} →</a>` : ''}
+        </div>`).join('')
+    : '<div class="empty" style="grid-column:1/-1">No organizations in this domain yet.</div>';
+
+  // Events
+  const evList = events || [];
+  const evSection = document.getElementById('eventsSection');
+  if (evList.length === 0) {
+    evSection.innerHTML = '';
+  } else {
+    document.getElementById('eventsList').innerHTML = evList.map(ev => {
+      let day = '🔔', month = 'Ongoing';
+      if (ev.event_date) {
+        const d = new Date(ev.event_date + 'T00:00:00');
+        const dayEnd = ev.event_date_end ? `–${new Date(ev.event_date_end+'T00:00:00').getDate()}` : '';
+        day = d.getDate() + dayEnd;
+        month = d.toLocaleString('en-US',{month:'short'}).toUpperCase();
+      }
+      return `<div class="event-row">
+        <div class="event-date-col"><div class="event-day">${day}</div><div class="event-month">${month}</div></div>
+        <div><div class="event-name">${esc(ev.name)}</div><div class="event-meta">${esc(ev.description||'')}</div></div>
+        <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

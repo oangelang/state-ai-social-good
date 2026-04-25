@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">AI × Social Good</a>
+  <ul class="nav-links">
+    <li><a href="/#domains">Domains</a></li>
+    <li><a href="/resources">Resources</a></li>
+    <li><a href="/risks">Risks</a></li>
+    <li><a href="/ecosystem">Ecosystem</a></li>
+    <li><a href="/events" class="active">Events</a></li>
+    <li><a href="/learn">Learn</a></li>
+  </ul>
+  <a class="nav-cta" href="/#nyc">Join the Hub →</a>
+</nav>
+
+<div class="page-body">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span>Events</div>
+    <h1 class="page-title">Upcoming <em>events</em></h1>
+    <p class="page-subtitle">Conferences, meetups, summits, and community gatherings at the intersection of AI and social impact. NYC-starred events are part of the local hub.</p>
+  </div>
+
+  <div class="section-wrap">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:28px;">
+      <div class="filter-bar">
+        <button class="filter-btn active" id="upcomingBtn">Upcoming</button>
+        <button class="filter-btn" id="allBtn">All events</button>
+      </div>
+      <label class="nyc-toggle" id="nycToggle">
+        <span class="nyc-dot"></span>NYC only
+      </label>
+    </div>
+
+    <div class="events-list" id="eventsList">
+      <div style="color:var(--muted); font-size:12px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a></div>
+  <div class="footer-note"><a href="/ecosystem">Ecosystem</a> · <a href="/resources">Resources</a> · <a href="/#nyc">NYC Hub</a></div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let allEvents = [];
+let upcomingOnly = true;
+let nycOnly = false;
+const today = new Date().toISOString().split('T')[0];
+
+async function init() {
+  const { data } = await db.from('events').select('*').eq('status','published').order('event_date', {ascending: true, nullsFirst: false});
+  allEvents = data || [];
+
+  document.getElementById('upcomingBtn').onclick = () => { upcomingOnly = true; setBtn('upcomingBtn','allBtn'); render(); };
+  document.getElementById('allBtn').onclick = () => { upcomingOnly = false; setBtn('allBtn','upcomingBtn'); render(); };
+  document.getElementById('nycToggle').onclick = () => {
+    nycOnly = !nycOnly;
+    document.getElementById('nycToggle').classList.toggle('active', nycOnly);
+    render();
+  };
+
+  render();
+}
+
+function setBtn(activeId, inactiveId) {
+  document.getElementById(activeId).classList.add('active');
+  document.getElementById(inactiveId).classList.remove('active');
+}
+
+function render() {
+  let list = allEvents;
+  if (upcomingOnly) list = list.filter(e => !e.event_date || e.event_date >= today);
+  if (nycOnly) list = list.filter(e => e.nyc);
+
+  const container = document.getElementById('eventsList');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty">No events match this filter.</div>';
+    return;
+  }
+
+  container.innerHTML = list.map(ev => {
+    let day = '🔔', month = 'Ongoing';
+    if (ev.event_date) {
+      const d = new Date(ev.event_date + 'T00:00:00');
+      const dayEnd = ev.event_date_end ? `–${new Date(ev.event_date_end+'T00:00:00').getDate()}` : '';
+      day = d.getDate() + dayEnd;
+      month = d.toLocaleString('en-US',{month:'short'}).toUpperCase();
+    }
+    const isPast = ev.event_date && ev.event_date < today;
+    const fmtLabel = ev.format ? `<span class="tag tag-muted" style="margin-left:6px;">${esc(ev.format)}</span>` : '';
+    return `<div class="event-row" style="${isPast ? 'opacity:.5;' : ''}">
+      <div class="event-date-col">
+        <div class="event-day">${day}</div>
+        <div class="event-month">${month}</div>
+      </div>
+      <div>
+        <div class="event-name">${esc(ev.name)}${fmtLabel}</div>
+        <div class="event-meta">${esc(ev.description||'')}${ev.url ? ` <a href="${esc(ev.url)}" target="_blank" style="color:var(--teal);font-size:10px;">↗</a>` : ''}</div>
+      </div>
+      <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>

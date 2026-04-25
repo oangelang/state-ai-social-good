@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn — The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+.track-card {
+  background: var(--warm-white); border: 1px solid var(--border);
+  border-radius: 3px; padding: 24px 28px; text-decoration: none;
+  display: block; color: inherit; transition: all 0.2s;
+}
+.track-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,94,0.09); }
+.track-eyebrow { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+.track-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; margin-bottom: 8px; line-height: 1.2; }
+.track-title em { font-style: italic; color: var(--teal); }
+.track-desc { font-size: 12px; color: var(--slate); line-height: 1.7; margin-bottom: 14px; }
+.track-count { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+
+.source-group { margin-bottom: 36px; }
+.source-group-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.source-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; transition: all 0.15s; }
+.source-row:last-child { border-bottom: none; }
+.source-row:hover .source-name { color: var(--teal); }
+.source-type { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); width: 110px; flex-shrink: 0; }
+.source-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 300; color: var(--ink); flex: 1; }
+.source-arrow { font-size: 11px; color: var(--teal); opacity: 0; transition: opacity 0.15s; }
+.source-row:hover .source-arrow { opacity: 1; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">AI × Social Good</a>
+  <ul class="nav-links">
+    <li><a href="/#domains">Domains</a></li>
+    <li><a href="/resources">Resources</a></li>
+    <li><a href="/risks">Risks</a></li>
+    <li><a href="/ecosystem">Ecosystem</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/learn" class="active">Learn</a></li>
+  </ul>
+  <a class="nav-cta" href="/#nyc">Join the Hub →</a>
+</nav>
+
+<div class="page-body">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span>Learn</div>
+    <h1 class="page-title">Where to <em>learn</em></h1>
+    <p class="page-subtitle">Sources we actually read. Organized by what you need: deep research, journalism with receipts, practitioner community, or funding signals. No content farms. No SEO-optimized roundups.</p>
+  </div>
+
+  <!-- START HERE TRACKS -->
+  <div class="section-wrap" style="padding-bottom:0;">
+    <div class="section-head">
+      <h2 class="section-title">Start <em>here</em></h2>
+      <span class="section-meta">By role</span>
+    </div>
+    <div class="card-grid-3" style="margin-bottom:8px;">
+      <div class="track-card">
+        <div class="track-eyebrow">For social impact practitioners</div>
+        <div class="track-title">New to <em>AI?</em></div>
+        <div class="track-desc">You do the work. You don't need to understand transformers — you need to know what AI can realistically do in your domain, what has failed, and how to evaluate vendor claims. Start with the SSIR landscape and the AI Now annual report.</div>
+        <div class="track-count">Recommended: SSIR Framework → AI Now Report → Rest of World → your domain page</div>
+      </div>
+      <div class="track-card">
+        <div class="track-eyebrow">For AI practitioners</div>
+        <div class="track-title">New to <em>social impact?</em></div>
+        <div class="track-desc">You understand the models. You need to understand the context: why deployment fails, what "community" means in practice, who the funders are, and how the social sector actually makes decisions. Start with Fast Forward's AI for Humanity report.</div>
+        <div class="track-count">Recommended: Fast Forward → DataKind → domain pages → Ecosystem map</div>
+      </div>
+      <div class="track-card">
+        <div class="track-eyebrow">For funders</div>
+        <div class="track-title">Orienting in the <em>field</em></div>
+        <div class="track-desc">You need signal, not noise. What's actually deployed vs. what's a press release. Who the credible field-builders are. Where the evidence gaps are. The SSIR framework and J-PAL's evaluation work are your anchors.</div>
+        <div class="track-count">Recommended: SSIR → J-PAL → McGovern Foundation → Ecosystem map → Domain pages</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" style="margin:0 40px;"></div>
+
+  <!-- SOURCES BY CATEGORY -->
+  <div class="section-wrap">
+    <div class="section-head">
+      <h2 class="section-title">Sources we <em>track</em></h2>
+      <span class="section-meta" id="sourceCount"></span>
+    </div>
+    <div id="sourcesBody">
+      <div style="color:var(--muted); font-size:12px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a></div>
+  <div class="footer-note"><a href="/resources">All resources</a> · <a href="/ecosystem">Ecosystem</a> · <a href="/risks">Risks</a></div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const GROUPS = [
+  { label: 'Research & field intelligence',   types: ['research','institute','journal','framework'] },
+  { label: 'Investigative journalism',         types: ['journalism','news'] },
+  { label: 'Philanthropy & funding',           types: ['funder','grants','giving','report'] },
+  { label: 'Newsletters & substacks',          types: ['newsletter','substack'] },
+  { label: 'Podcasts & community',             types: ['podcast','coalition','summit','community'] },
+  { label: 'Career & education',               types: ['career','education','platform'] },
+];
+
+async function init() {
+  const { data } = await db.from('resources').select('*').eq('status','published').order('is_critical', {ascending:false}).order('title');
+  const sources = data || [];
+
+  document.getElementById('sourceCount').textContent = `${sources.length} sources`;
+
+  let html = '';
+  GROUPS.forEach(group => {
+    const items = sources.filter(s => group.types.includes(s.resource_type));
+    if (items.length === 0) return;
+    html += `<div class="source-group">
+      <div class="source-group-label">${esc(group.label)}</div>
+      ${items.map(s => `
+        <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
+          <span class="source-type">${esc(s.resource_type||'')}</span>
+          <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
+          <span class="source-arrow">→</span>
+        </a>`).join('')}
+    </div>`;
+  });
+
+  // anything not in a group
+  const coveredTypes = GROUPS.flatMap(g => g.types);
+  const rest = sources.filter(s => !coveredTypes.includes(s.resource_type));
+  if (rest.length > 0) {
+    html += `<div class="source-group">
+      <div class="source-group-label">Other</div>
+      ${rest.map(s => `
+        <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
+          <span class="source-type">${esc(s.resource_type||'')}</span>
+          <span class="source-name">${esc(s.title)}</span>
+          <span class="source-arrow">→</span>
+        </a>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('sourcesBody').innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>
