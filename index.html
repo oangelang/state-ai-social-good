@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The State of AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0e0e0e;
+  --paper: #f4f0e8;
+  --warm-white: #faf8f3;
+  --teal: #1a6b5e;
+  --teal-light: #2a8f7f;
+  --teal-muted: #e0eeeb;
+  --gold: #c8891e;
+  --gold-light: #f0c060;
+  --rust: #b84a2e;
+  --slate: #4a5568;
+  --muted: #8a8880;
+  --border: rgba(14,14,14,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.5;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 40px;
+  background: rgba(244,240,232,0.93);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-size: 11px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--teal); }
+.nav-cta { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; background: var(--teal); color: white; padding: 6px 14px; border-radius: 2px; cursor: pointer; border: none; transition: background 0.2s; }
+.nav-cta:hover { background: var(--teal-light); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 110px 40px 56px; text-align: center;
+}
+.hero-eyebrow { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--teal); margin-bottom: 22px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
+.hero-title { font-family: 'Fraunces', serif; font-size: clamp(44px, 7vw, 92px); font-weight: 300; line-height: 1.04; max-width: 900px; margin-bottom: 6px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
+.hero-title em { font-style: italic; color: var(--teal); }
+.hero-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 20px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.5s; }
+.hero-desc { font-size: 14px; color: var(--slate); max-width: 520px; line-height: 1.75; margin-bottom: 52px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.62s; }
+
+/* ── DOMAIN NAVIGATOR ── */
+.domain-nav { width: 100%; max-width: 1160px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.78s; }
+.domain-nav-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+.domain-tabs { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 28px; align-items: center; }
+
+.domain-tab {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 9px 18px; border: 1px solid var(--border); background: var(--warm-white);
+  color: var(--slate); cursor: pointer; border-radius: 2px; transition: all 0.2s; position: relative; overflow: hidden;
+}
+.domain-tab::before { content: ''; position: absolute; inset: 0; background: var(--teal); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; z-index: 0; }
+.domain-tab span { position: relative; z-index: 1; }
+.domain-tab:hover::before, .domain-tab.active::before { transform: scaleX(1); }
+.domain-tab:hover, .domain-tab.active { color: white; border-color: var(--teal); }
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-right: 6px; position: relative; z-index: 1; vertical-align: middle; margin-bottom: 1px; }
+
+.more-btn {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 9px 16px; border: 1px dashed var(--teal); background: transparent;
+  color: var(--teal); cursor: pointer; border-radius: 2px; transition: all 0.2s;
+}
+.more-btn:hover { background: var(--teal-muted); }
+
+.extra-tabs { display: none; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 0; }
+.extra-tabs.open { display: flex; }
+
+/* ── DOMAIN PANEL ── */
+.domain-panel { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 32px 40px; text-align: left; display: none; }
+.domain-panel.active { display: block; animation: panelIn 0.3s ease; }
+@keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.panel-name { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; }
+.panel-name em { font-style: italic; color: var(--teal); }
+.panel-stats { display: flex; gap: 20px; }
+.panel-stat-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.panel-stat-val { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; color: var(--teal); }
+
+.panel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+.col-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.col-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.col-label.tried { color: var(--teal); }
+.col-label.caution { color: var(--rust); }
+.col-label.open { color: var(--gold); }
+
+.panel-item { font-size: 11px; line-height: 1.55; color: var(--slate); padding: 8px 10px; background: rgba(255,255,255,0.7); border-left: 2px solid var(--border); margin-bottom: 6px; border-radius: 0 2px 2px 0; transition: all 0.18s; }
+.panel-item a { color: inherit; text-decoration: none; display: block; }
+.panel-item:hover { background: white; border-left-color: var(--teal); transform: translateX(2px); }
+.panel-item.warn { border-left-color: rgba(184,74,46,0.35); }
+.panel-item.warn:hover { border-left-color: var(--rust); }
+.panel-item.q { border-left-color: rgba(200,137,30,0.3); }
+.panel-item.q:hover { border-left-color: var(--gold); }
+.item-org { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 3px; font-weight: 500; }
+.item-src { font-size: 9px; color: var(--muted); margin-top: 4px; text-decoration: underline; }
+
+.panel-footer { display: flex; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border); }
+.panel-link { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); text-decoration: none; padding: 7px 14px; border: 1px solid var(--teal); border-radius: 2px; transition: all 0.2s; }
+.panel-link:hover { background: var(--teal); color: white; }
+
+/* ── SHARED SECTION STYLES ── */
+.section-wrap { padding: 68px 40px; max-width: 1160px; margin: 0 auto; }
+.section-wrap.full { max-width: none; padding-left: 40px; padding-right: 40px; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.section-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; }
+.section-title em { font-style: italic; color: var(--teal); }
+.section-meta { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.see-all { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); text-decoration: none; padding: 6px 12px; border: 1px solid var(--teal); border-radius: 2px; white-space: nowrap; transition: all 0.2s; }
+.see-all:hover { background: var(--teal); color: white; }
+.divider { width: 100%; height: 1px; background: var(--border); }
+
+/* ── FRAMEWORK CALLOUT ── */
+.framework-box {
+  background: var(--ink); border-radius: 4px; padding: 32px 36px; margin-bottom: 28px;
+}
+.framework-box-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 8px; }
+.framework-box-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 300; color: var(--paper); margin-bottom: 6px; }
+.framework-box-title em { font-style: italic; color: var(--gold-light); }
+.framework-box-desc { font-size: 11px; color: rgba(244,240,232,0.55); line-height: 1.7; margin-bottom: 20px; max-width: 580px; }
+.fw-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.fw-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 3px; }
+.fw-box-n { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; color: var(--teal-light); line-height: 1; margin-bottom: 5px; }
+.fw-box-t { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper); margin-bottom: 4px; }
+.fw-box-d { font-size: 10px; color: rgba(244,240,232,0.45); line-height: 1.5; }
+
+/* ── RESOURCE CARDS ── */
+.card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+.resource-card { background: var(--warm-white); border: 1px solid var(--border); padding: 18px 20px; border-radius: 3px; text-decoration: none; display: block; color: inherit; transition: all 0.2s; position: relative; }
+.resource-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,94,0.09); }
+.card-year { position: absolute; top: 14px; right: 14px; font-size: 10px; color: var(--muted); }
+.card-type { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+.card-name { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 300; color: var(--ink); margin-bottom: 6px; line-height: 1.3; }
+.card-desc { font-size: 11px; color: var(--slate); line-height: 1.6; margin-bottom: 10px; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; background: var(--teal-muted); color: var(--teal); border-radius: 2px; }
+.tag-rust { background: rgba(184,74,46,0.08); color: var(--rust); }
+.tag-gold { background: rgba(200,137,30,0.1); color: var(--gold); }
+
+/* ── ECOSYSTEM CARDS ── */
+.ecosystem-card { background: var(--warm-white); border: 1px solid var(--border); padding: 18px 20px; border-radius: 3px; transition: all 0.2s; position: relative; }
+.ecosystem-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,94,0.09); }
+.eco-role { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+.eco-name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 300; color: var(--ink); margin-bottom: 6px; }
+.eco-desc { font-size: 11px; color: var(--slate); line-height: 1.6; margin-bottom: 10px; }
+.eco-link { font-size: 10px; color: var(--teal); text-decoration: none; }
+.eco-link:hover { text-decoration: underline; }
+
+/* ── RISKS ── */
+.risks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.risk-card { background: var(--warm-white); border: 1px solid var(--border); border-top: 3px solid var(--rust); padding: 18px 20px; border-radius: 0 0 3px 3px; transition: all 0.2s; }
+.risk-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(184,74,46,0.09); }
+.risk-n { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 300; color: rgba(184,74,46,0.18); line-height: 1; margin-bottom: 6px; }
+.risk-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 300; color: var(--ink); margin-bottom: 6px; }
+.risk-title em { font-style: italic; color: var(--rust); }
+.risk-desc { font-size: 11px; color: var(--slate); line-height: 1.65; margin-bottom: 10px; }
+.risk-stat { font-size: 11px; color: var(--rust); background: rgba(184,74,46,0.06); padding: 6px 9px; border-radius: 2px; line-height: 1.5; }
+.risk-src { font-size: 9px; color: var(--muted); margin-top: 4px; display: block; text-decoration: underline; }
+
+/* ── LEARN ── */
+.learn-card { background: var(--warm-white); border: 1px solid var(--border); padding: 16px 18px; border-radius: 3px; transition: all 0.2s; text-decoration: none; display: block; color: inherit; }
+.learn-card:hover { border-color: var(--teal); transform: translateY(-2px); }
+.learn-medium { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 5px; }
+.learn-name { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 300; color: var(--ink); line-height: 1.35; }
+
+/* ── EVENTS ── */
+.events-list { display: flex; flex-direction: column; gap: 9px; }
+.event-row { display: grid; grid-template-columns: 72px 1fr auto; gap: 20px; align-items: center; padding: 14px 18px; background: var(--warm-white); border: 1px solid var(--border); border-radius: 3px; transition: all 0.2s; }
+.event-row:hover { border-color: var(--teal); }
+.event-day { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 300; color: var(--teal); line-height: 1; }
+.event-month { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.event-date-col { text-align: center; border-right: 1px solid var(--border); padding-right: 20px; }
+.event-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 300; color: var(--ink); margin-bottom: 3px; }
+.event-info { font-size: 11px; color: var(--muted); }
+.event-loc { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); background: var(--teal-muted); padding: 4px 9px; border-radius: 2px; white-space: nowrap; }
+.event-loc.nyc { background: var(--teal); color: white; }
+
+/* ── NYC BANNER ── */
+.nyc-band { background: var(--teal); padding: 44px 40px; }
+.nyc-inner { max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 36px; }
+.nyc-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+.nyc-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; color: white; margin-bottom: 7px; }
+.nyc-desc { font-size: 12px; color: rgba(255,255,255,0.7); max-width: 540px; line-height: 1.7; }
+.nyc-btn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; background: white; color: var(--teal); border: none; padding: 12px 24px; cursor: pointer; border-radius: 2px; white-space: nowrap; transition: all 0.2s; }
+.nyc-btn:hover { background: var(--paper); }
+
+/* ── FOOTER ── */
+footer { padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+.footer-note { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+.footer-note a { color: var(--teal); text-decoration: none; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AI × Social Good</div>
+  <ul class="nav-links">
+    <li><a href="#domains">Domains</a></li>
+    <li><a href="#field">Field Intelligence</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#ecosystem">Ecosystem</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#nyc">NYC Hub</a></li>
+  </ul>
+  <button class="nav-cta">Join the Hub →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">A Field Intelligence Resource — Global Scope · NYC Community</div>
+  <h1 class="hero-title">The State of <em>AI</em> for Social Good</h1>
+  <div class="hero-sub">Updated continuously. Curated honestly. No hype welcome.</div>
+  <p class="hero-desc">For the practitioners, funders, and technologists who need to know what has actually been tried — what worked, what failed, and where the real gaps are. Not a highlight reel. A field map.</p>
+
+  <!-- DOMAIN NAVIGATOR -->
+  <div class="domain-nav" id="domains">
+    <div class="domain-nav-label">Explore by domain — what's been tried, what failed, what's still open</div>
+    <div class="domain-tabs" id="domainTabsRow">
+      <button class="domain-tab active" onclick="showDomain('climate',this)"><span><span class="dot"></span>Climate</span></button>
+      <button class="domain-tab" onclick="showDomain('health',this)"><span><span class="dot"></span>Health</span></button>
+      <button class="domain-tab" onclick="showDomain('ocean',this)"><span><span class="dot"></span>Ocean & Water</span></button>
+      <button class="domain-tab" onclick="showDomain('food',this)"><span><span class="dot"></span>Food & Agriculture</span></button>
+      <button class="domain-tab extra-tab" style="display:none" onclick="showDomain('equity',this)"><span><span class="dot"></span>Economic Equity</span></button>
+      <button class="domain-tab extra-tab" style="display:none" onclick="showDomain('education',this)"><span><span class="dot"></span>Education</span></button>
+      <button class="domain-tab extra-tab" style="display:none" onclick="showDomain('humanitarian',this)"><span><span class="dot"></span>Humanitarian</span></button>
+      <button class="domain-tab extra-tab" style="display:none" onclick="showDomain('energy',this)"><span><span class="dot"></span>Energy & Materials</span></button>
+      <button class="more-btn" id="moreBtn" onclick="toggleMore()"><span id="moreBtnText">+ 4 more domains</span></button>
+    </div>
+
+    <!-- CLIMATE -->
+    <div class="domain-panel active" id="panel-climate">
+      <div class="panel-header">
+        <div class="panel-name">Climate <em>&</em> Environment</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">14</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">13, 15</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Google — Flood Hub</div>7-day riverine flood forecasts. 80 countries, 460M people covered. Pre-positioned Brazil crisis response 2024.<a class="item-src" href="https://sites.research.google/floodhub/" target="_blank">sites.research.google/floodhub</a></div>
+          <div class="panel-item"><div class="item-org">Rainforest Connection</div>Acoustic ML detects chainsaws in forest canopy audio. Rangers get real-time phone alerts.<a class="item-src" href="https://rfcx.org" target="_blank">rfcx.org</a></div>
+          <div class="panel-item"><div class="item-org">Climate TRACE</div>Satellite AI tracks facility-level emissions globally. Claims 99.9% of global emissions tracked.<a class="item-src" href="https://climatetrace.org" target="_blank">climatetrace.org</a></div>
+          <div class="panel-item"><div class="item-org">Pano AI</div>360° cameras + CV scan for earliest wildfire smoke signals. Deployed with first responders.<a class="item-src" href="https://pano.ai" target="_blank">pano.ai</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">Flood models reach only ~1% of global watersheds. Communities with the least data bear the highest risk.</div>
+          <div class="panel-item warn">Carbon credit verification AI has been used to inflate offset claims. Same tech, opposite intent.</div>
+          <div class="panel-item warn">Most climate AI addresses mitigation. Adaptation — where the poorest need it — is mostly still at pilot stage.</div>
+          <div class="panel-item warn">Meta and Google ended their climate AI programs. Field sustainability without corporate backing is unresolved.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">Can AI for climate survive structurally without tech company funding?</div>
+          <div class="panel-item q">Who owns training data from the communities bearing the most climate risk?</div>
+          <div class="panel-item q">How do we evaluate tools that work in pilots but haven't survived a grant cycle?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/climate">Full climate domain →</a></div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="domain-panel" id="panel-health">
+      <div class="panel-header">
+        <div class="panel-name">Health <em>&</em> Medicine</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">22</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">3, 10</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">ARMAN — mMitra</div>Predicts dropout risk for pregnant women in rural health programs. Reached 2.9M women; 30% increase in high-risk engagement.<a class="item-src" href="https://armman.org" target="_blank">armman.org</a></div>
+          <div class="panel-item"><div class="item-org">Zipline</div>Autonomous drones deliver blood + vaccines to remote areas. Millions of deliveries in Rwanda and Ghana.<a class="item-src" href="https://flyzipline.com" target="_blank">flyzipline.com</a></div>
+          <div class="panel-item"><div class="item-org">UNICEF OOI</div>AI identifies "zero-dose children" who've missed vaccinations from community health worker data.<a class="item-src" href="https://unicef.org/innovation" target="_blank">unicef.org/innovation</a></div>
+          <div class="panel-item"><div class="item-org">Spore.Bio</div>Biophotonics AI detects drug-resistant bacteria in under one hour vs. multi-day lab tests.<a class="item-src" href="https://spore.bio" target="_blank">spore.bio</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">AI diagnostics trained on Western data perform worse in Sub-Saharan African clinical contexts. Dataset provenance matters.</div>
+          <div class="panel-item warn">Mental health chatbots without clinical oversight have caused documented harm. Escalation paths are not optional.</div>
+          <div class="panel-item warn">Most health AI requires connectivity + devices that community health workers in the field don't have.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">How do we build training datasets representing communities most affected by health inequity?</div>
+          <div class="panel-item q">Who is liable when an AI health tool fails in a resource-constrained context with no fallback?</div>
+          <div class="panel-item q">Can offline-capable diagnostic tools be built that function without connectivity?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/health">Full health domain →</a></div>
+    </div>
+
+    <!-- OCEAN -->
+    <div class="domain-panel" id="panel-ocean">
+      <div class="panel-header">
+        <div class="panel-name">Ocean <em>&</em> Water</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">8</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">6, 14</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Global Fishing Watch</div>ML + satellite tracks millions of daily vessel positions. Near real-time global fishing activity map.<a class="item-src" href="https://globalfishingwatch.org" target="_blank">globalfishingwatch.org</a></div>
+          <div class="panel-item"><div class="item-org">The Ocean Cleanup — Interceptor</div>CV identifies plastic debris in rivers via autonomous cameras. Millions of pounds removed.<a class="item-src" href="https://theoceancleanup.com" target="_blank">theoceancleanup.com</a></div>
+          <div class="panel-item"><div class="item-org">CETI Project</div>Acoustic classification to decode sperm whale communication and monitor marine health.<a class="item-src" href="https://projectceti.org" target="_blank">projectceti.org</a></div>
+          <div class="panel-item"><div class="item-org">UNICEF — Groundwater Mapping</div>AI + remote sensing locates aquifers in drought regions where drilling is prohibitively expensive.<a class="item-src" href="https://unicef.org/innovation" target="_blank">unicef.org/innovation</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">Detection works. Enforcement depends entirely on political will. Global Fishing Watch is public; action on it is not.</div>
+          <div class="panel-item warn">Coral reef monitoring ML requires baseline data most reefs don't have. You can't train on what was never measured.</div>
+          <div class="panel-item warn">Marine carbon removal verification is early. AI claims outpace independent verification capacity.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">Can AI close the ocean data gap before irreversible tipping points are crossed?</div>
+          <div class="panel-item q">What role should fishing communities play in designing tools that monitor their waters?</div>
+          <div class="panel-item q">How do we build open-source ocean data frameworks not owned by a single company or government?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/ocean">Full ocean domain →</a></div>
+    </div>
+
+    <!-- FOOD -->
+    <div class="domain-panel" id="panel-food">
+      <div class="panel-header">
+        <div class="panel-name">Food <em>&</em> Agriculture</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">11</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">2, 15</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Opportunity Int'l — Ulangizi</div>Gen AI chatbot gives real-time agricultural advice in Chichewa to Malawi smallholders. Local language, offline-tolerant.<a class="item-src" href="https://opportunity.org" target="_blank">opportunity.org</a></div>
+          <div class="panel-item"><div class="item-org">Wadhwani AI — CottonAce</div>CV identifies cotton pests from mobile photos, reducing crop loss for smallholders.<a class="item-src" href="https://wadhwaniai.org" target="_blank">wadhwaniai.org</a></div>
+          <div class="panel-item"><div class="item-org">Kilimo</div>Satellite + soil sensor data tells farmers exactly when and how much to water crops.<a class="item-src" href="https://agkilimo.com" target="_blank">agkilimo.com</a></div>
+          <div class="panel-item"><div class="item-org">Google — Malnutrition Forecast</div>Predicts childhood malnutrition using food price + conflict data for early humanitarian action.<a class="item-src" href="https://ai.google/social-good" target="_blank">ai.google/social-good</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">Precision agriculture AI is overwhelmingly built for large-scale commercial farms. Smallholders — who produce 70% of Global South food — remain an afterthought.</div>
+          <div class="panel-item warn">Localization into local languages costs more than most NGOs can sustain. Ulangizi is the exception, not the norm.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">Can voice-first, multilingual agricultural AI be built for low-literacy users at a cost nonprofits can sustain?</div>
+          <div class="panel-item q">Where are the open-source crop disease models trained on Global South data?</div>
+          <div class="panel-item q">How do we ensure smallholder farmers are co-designers, not just end users?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/food">Full food domain →</a></div>
+    </div>
+
+    <!-- EQUITY -->
+    <div class="domain-panel" id="panel-equity">
+      <div class="panel-header">
+        <div class="panel-name">Economic <em>Equity</em></div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">9</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">1, 8, 10</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">DataKind / CUNY — Edvise</div>Predictive analytics for student dropout risk. Grad rate rose from 54% to 86% at John Jay College.<a class="item-src" href="https://datakind.org" target="_blank">datakind.org</a></div>
+          <div class="panel-item"><div class="item-org">Stanford — Poverty Mapping</div>ML extracts socioeconomic data from satellite imagery where census data doesn't exist.<a class="item-src" href="https://sustain.stanford.edu" target="_blank">sustain.stanford.edu</a></div>
+          <div class="panel-item"><div class="item-org">Be My Eyes + GPT-4 Vision</div>Virtual volunteer for blind and low-vision individuals. Real-time contextual guidance.<a class="item-src" href="https://bemyeyes.com" target="_blank">bemyeyes.com</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">Hiring algorithm audits found persistent racial bias even after explicit debiasing. Historical training data was the problem.</div>
+          <div class="panel-item warn">Microfinance AI credit scoring excluded rural women at higher rates than human lenders in documented cases.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">Can participatory design actually scale, or does it only work for small pilots with dedicated teams?</div>
+          <div class="panel-item q">Who builds independent auditing infrastructure for AI in high-stakes economic contexts?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/equity">Full equity domain →</a></div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="domain-panel" id="panel-education">
+      <div class="panel-header">
+        <div class="panel-name">Education <em>&</em> Access</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">17</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">4, 10</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Quill.org</div>NLP + gen AI coaching on student writing. 8.9M students across 35,000 schools.<a class="item-src" href="https://quill.org" target="_blank">quill.org</a></div>
+          <div class="panel-item"><div class="item-org">Google — 1000 Languages</div>Multilingual foundation models. 24 low-resource languages added to Translate.<a class="item-src" href="https://sites.research.google/1000languages/" target="_blank">sites.research.google/1000languages</a></div>
+          <div class="panel-item"><div class="item-org">AI4ALL</div>Pipeline programs for underrepresented students entering AI. 40+ university partners.<a class="item-src" href="https://ai-4-all.org" target="_blank">ai-4-all.org</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">EdTech AI pilots routinely outperform controls in studies, then disappear when grants end. Sustainability is the structural failure.</div>
+          <div class="panel-item warn">AI tutors in low-bandwidth environments fail silently. Teachers often don't know students can't access them.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">Why does EdTech AI keep working in pilots and failing at scale?</div>
+          <div class="panel-item q">How do we build offline-first AI education tools for low-connectivity classrooms?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/education">Full education domain →</a></div>
+    </div>
+
+    <!-- HUMANITARIAN -->
+    <div class="domain-panel" id="panel-humanitarian">
+      <div class="panel-header">
+        <div class="panel-name"><em>Humanitarian</em> Response</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">11</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">11, 16</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Crisis Text Line</div>AI triage routes highest-risk crisis texts to human counselors. NYC-based, running at real scale.<a class="item-src" href="https://crisistextline.org" target="_blank">crisistextline.org</a></div>
+          <div class="panel-item"><div class="item-org">AsyLex</div>AI-assisted free legal counseling for refugees in Switzerland's asylum process.<a class="item-src" href="https://asylex.ch" target="_blank">asylex.ch</a></div>
+          <div class="panel-item"><div class="item-org">OCHA DEEP</div>ML-assisted tagging of humanitarian needs assessments for faster field decisions.<a class="item-src" href="https://deephelper.org" target="_blank">deephelper.org</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">AI-assisted asylum support raises serious due process concerns. Automating life-altering decisions for people with no recourse is categorically different from other domains.</div>
+          <div class="panel-item warn">Biometric data collected in crises has been accessed by state actors in multiple documented cases.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">What are minimum ethical standards for AI in contexts where people cannot meaningfully consent or opt out?</div>
+          <div class="panel-item q">Who holds humanitarian AI systems accountable when they fail the most vulnerable people?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/humanitarian">Full humanitarian domain →</a></div>
+    </div>
+
+    <!-- ENERGY -->
+    <div class="domain-panel" id="panel-energy">
+      <div class="panel-header">
+        <div class="panel-name">Energy <em>&</em> Materials</div>
+        <div class="panel-stats">
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">7</div></div>
+          <div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">7, 9</div></div>
+        </div>
+      </div>
+      <div class="panel-grid">
+        <div>
+          <div class="col-label tried">What's been tried</div>
+          <div class="panel-item"><div class="item-org">Stem — Athena</div>AI storage management switches large facilities to stored renewable energy automatically.<a class="item-src" href="https://stem.com" target="_blank">stem.com</a></div>
+          <div class="panel-item"><div class="item-org">Materials Project</div>Graph neural networks shrink battery material discovery timelines from decades to months.<a class="item-src" href="https://materialsproject.org" target="_blank">materialsproject.org</a></div>
+          <div class="panel-item"><div class="item-org">Alphabet X — Tapestry</div>Digital twins of the electric grid using reinforcement learning to optimize distribution.<a class="item-src" href="https://x.company" target="_blank">x.company</a></div>
+        </div>
+        <div>
+          <div class="col-label caution">Honest cautions</div>
+          <div class="panel-item warn">AI's own energy consumption is significant and growing. US data centers: 4.4% of electricity now, projected 12% by 2028.</div>
+          <div class="panel-item warn">Grid optimization tools work in well-instrumented grids. In the Global South, where unreliability is worst, these tools have limited application.</div>
+        </div>
+        <div>
+          <div class="col-label open">Open questions</div>
+          <div class="panel-item q">How do we account for AI's own energy footprint when measuring its impact on clean energy?</div>
+          <div class="panel-item q">Who ensures AI-accelerated material discoveries reach manufacturing at a cost accessible to lower-income markets?</div>
+        </div>
+      </div>
+      <div class="panel-footer"><a class="panel-link" href="/domains/energy">Full energy domain →</a></div>
+    </div>
+
+  </div><!-- end domain-nav -->
+</section>
+
+<div class="divider"></div>
+
+<!-- FIELD INTELLIGENCE: Research + Learn combined -->
+<div class="section-wrap fade-in" id="field">
+  <div class="section-head">
+    <h2 class="section-title">Field <em>intelligence</em></h2>
+    <a class="see-all" href="/resources">View all resources →</a>
+  </div>
+
+  <!-- SSIR framework callout — once, here, with context -->
+  <div class="framework-box">
+    <div class="framework-box-eyebrow">SSIR Framework · 2024</div>
+    <div class="framework-box-title">The four ways nonprofits are <em>actually using AI</em></div>
+    <div class="framework-box-desc">Stanford Social Innovation Review's 2024 landscape mapping. Four core use case categories across the sector, mapped to SDGs. Notably excludes AI for internal operations — a gap the field is still catching up on. SDGs 3, 4, and 13 have the strongest potential, per their analysis.</div>
+    <div class="fw-four">
+      <div class="fw-box"><div class="fw-box-n">01</div><div class="fw-box-t">Structuring Data</div><div class="fw-box-d">Organizing messy information into usable, decision-ready formats</div></div>
+      <div class="fw-box"><div class="fw-box-n">02</div><div class="fw-box-t">Advising</div><div class="fw-box-d">AI-powered guidance, recommendations, and personalized support</div></div>
+      <div class="fw-box"><div class="fw-box-n">03</div><div class="fw-box-t">Translating</div><div class="fw-box-d">Bridging language, data format, and domain knowledge gaps</div></div>
+      <div class="fw-box"><div class="fw-box-n">04</div><div class="fw-box-t">Platforms</div><div class="fw-box-d">Infrastructure enabling other organizations to build and act</div></div>
+    </div>
+  </div>
+
+  <!-- Featured resources — 6 cards, link to full library -->
+  <div class="card-grid-3" style="margin-bottom:14px;">
+    <a class="resource-card" href="https://ssir.org/articles/entry/ai-powered-nonprofits-landscape" target="_blank">
+      <div class="card-year">2024</div>
+      <div class="card-type">Research / Landscape</div>
+      <div class="card-name">Mapping the Landscape of AI-Powered Nonprofits</div>
+      <div class="card-desc">The foundational 2024 SSIR framework. Starting point for any serious field analysis.</div>
+      <div class="card-tags"><span class="tag">Framework</span><span class="tag">Nonprofits</span></div>
+    </a>
+    <a class="resource-card" href="https://aiforhumanity.ffwd.org" target="_blank">
+      <div class="card-year">2025</div>
+      <div class="card-type">Report + Playbook</div>
+      <div class="card-name">AI for Humanity — Fast Forward</div>
+      <div class="card-desc">Full playbook, grantmaking tools, 2025 report, and The Philanthropic Reset white paper on the digital fragility of the sector.</div>
+      <div class="card-tags"><span class="tag">Philanthropy</span><span class="tag">Playbook</span></div>
+    </a>
+    <a class="resource-card" href="https://ainowinstitute.org" target="_blank">
+      <div class="card-year">Ongoing</div>
+      <div class="card-type">Research Institute</div>
+      <div class="card-name">AI Now Institute</div>
+      <div class="card-desc">The most rigorous independent research on AI's social harms. Annual reports are definitive on bias, labor, surveillance, accountability.</div>
+      <div class="card-tags"><span class="tag-rust tag">Bias</span><span class="tag-rust tag">Accountability</span></div>
+    </a>
+    <a class="resource-card" href="https://themarkup.org" target="_blank">
+      <div class="card-year">Ongoing</div>
+      <div class="card-type">Investigative Journalism</div>
+      <div class="card-name">The Markup</div>
+      <div class="card-desc">The best source for documented real-world AI failure cases with receipts. Where the field's cautionary tales actually get written up.</div>
+      <div class="card-tags"><span class="tag-rust tag">Failures</span><span class="tag">Accountability</span></div>
+    </a>
+    <a class="resource-card" href="https://restofworld.org" target="_blank">
+      <div class="card-year">Ongoing</div>
+      <div class="card-type">Journalism</div>
+      <div class="card-name">Rest of World</div>
+      <div class="card-desc">The only publication covering tech's impact on the Global South seriously. Essential for any work claiming to be global.</div>
+      <div class="card-tags"><span class="tag">Global South</span><span class="tag">Equity</span></div>
+    </a>
+    <a class="resource-card" href="https://nist.gov/artificial-intelligence" target="_blank">
+      <div class="card-year">2023+</div>
+      <div class="card-type">Government Framework</div>
+      <div class="card-name">NIST AI Risk Management Framework</div>
+      <div class="card-desc">The authoritative US framework for managing AI risk. Increasingly required by funders and procurement. Every practitioner should know it.</div>
+      <div class="card-tags"><span class="tag">Framework</span><span class="tag">Governance</span></div>
+    </a>
+  </div>
+
+  <!-- Learn / Follow strip -->
+  <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
+      <div style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted);">Where we search — news, newsletters, communities & primary sources</div>
+      <a class="see-all" href="/learn" style="font-size:9px; padding:4px 10px;">All sources →</a>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:10px;">
+      <div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); padding:6px 0; border-bottom:1px solid var(--border); grid-column:1/-1;">Primary sources & field intelligence</div>
+      <a class="learn-card" href="https://aiforgood.itu.int" target="_blank"><div class="learn-medium">Summit + News</div><div class="learn-name">ITU AI for Good</div></a>
+      <a class="learn-card" href="https://impactchallenge.withgoogle.com" target="_blank"><div class="learn-medium">Grants + Deployments</div><div class="learn-name">Google.org Impact Challenges</div></a>
+      <a class="learn-card" href="https://mcgovern.org" target="_blank"><div class="learn-medium">Funder + Publications</div><div class="learn-name">Patrick J. McGovern Foundation</div></a>
+      <a class="learn-card" href="https://80000hours.org" target="_blank"><div class="learn-medium">Career + Research</div><div class="learn-name">80,000 Hours</div></a>
+      <a class="learn-card" href="https://hai.stanford.edu" target="_blank"><div class="learn-medium">Research Institute</div><div class="learn-name">Stanford HAI</div></a>
+      <a class="learn-card" href="https://anthropic.com/news" target="_blank"><div class="learn-medium">AI Safety + Policy</div><div class="learn-name">Anthropic Newsroom</div></a>
+      <a class="learn-card" href="https://data.org" target="_blank"><div class="learn-medium">Data for Good</div><div class="learn-name">data.org</div></a>
+      <a class="learn-card" href="https://techchange.org" target="_blank"><div class="learn-medium">EdTech + Social Good</div><div class="learn-name">TechChange</div></a>
+      <a class="learn-card" href="https://ssir.org" target="_blank"><div class="learn-medium">Research + Analysis</div><div class="learn-name">Stanford Social Innovation Review</div></a>
+      <div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); padding:6px 0; border-bottom:1px solid var(--border); grid-column:1/-1; margin-top:8px;">Philanthropy & giving</div>
+      <a class="learn-card" href="https://renaissance.org" target="_blank"><div class="learn-medium">Philanthropy VC</div><div class="learn-name">Renaissance Philanthropy</div></a>
+      <a class="learn-card" href="https://coefficientgiving.org" target="_blank"><div class="learn-medium">Effective Giving</div><div class="learn-name">Coefficient Giving</div></a>
+      <a class="learn-card" href="https://aiforhumanity.ffwd.org" target="_blank"><div class="learn-medium">Report + Playbook</div><div class="learn-name">AI for Humanity — Fast Forward</div></a>
+      <div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); padding:6px 0; border-bottom:1px solid var(--border); grid-column:1/-1; margin-top:8px;">Newsletters & substacks (active 2026)</div>
+      <a class="learn-card" href="https://impactai.beehiiv.com" target="_blank"><div class="learn-medium">Newsletter</div><div class="learn-name">AI for Impact</div></a>
+      <a class="learn-card" href="https://substack.com/@aigoodx" target="_blank"><div class="learn-medium">Substack</div><div class="learn-name">AI for GoodX</div></a>
+      <a class="learn-card" href="https://substack.com" target="_blank"><div class="learn-medium">Substack</div><div class="learn-name">Kevin — AI for Social Good</div></a>
+      <a class="learn-card" href="https://substack.com" target="_blank"><div class="learn-medium">Substack</div><div class="learn-name">The AI for Good Newsletter</div></a>
+      <a class="learn-card" href="https://aiforhumanity.ffwd.org" target="_blank"><div class="learn-medium">Newsletter</div><div class="learn-name">AI for Humanity — Fast Forward</div></a>
+      <a class="learn-card" href="https://restofworld.org" target="_blank"><div class="learn-medium">Journalism</div><div class="learn-name">Rest of World</div></a>
+      <div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); padding:6px 0; border-bottom:1px solid var(--border); grid-column:1/-1; margin-top:8px;">Podcasts & communities</div>
+      <a class="learn-card" href="https://www.linkedin.com/company/humanitarian-ai-today/" target="_blank"><div class="learn-medium">Podcast</div><div class="learn-name">Humanitarian AI Today</div></a>
+      <a class="learn-card" href="https://www.goodtechtogether.org/summit" target="_blank"><div class="learn-medium">Summit</div><div class="learn-name">Good Tech Together</div></a>
+      <a class="learn-card" href="https://humanityai.ai" target="_blank"><div class="learn-medium">Coalition</div><div class="learn-name">Humanity AI</div></a>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RISKS -->
+<div class="section-wrap fade-in" id="risks">
+  <div class="section-head">
+    <h2 class="section-title">The <em>real risks</em></h2>
+    <a class="see-all" href="/risks">Full risk analysis →</a>
+  </div>
+  <p style="font-size:13px; color:var(--slate); max-width:640px; line-height:1.75; margin-bottom:24px;">A site about AI for social good that doesn't name the harms is a brochure, not a field resource. These six categories are documented, active, and inadequately addressed.</p>
+  <div class="risks-grid">
+    <div class="risk-card">
+      <div class="risk-n">01</div>
+      <div class="risk-title">Bias <em>&</em> Discrimination</div>
+      <div class="risk-desc">AI systems trained on historical data inherit and amplify existing inequalities. Hiring tools, credit scoring, medical diagnostics, and criminal justice have all produced documented discriminatory outcomes even after explicit debiasing.</div>
+      <div class="risk-stat">55% of AI experts and 55% of the US public are highly worried about AI bias — the rare issue they agree on.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-n">02</div>
+      <div class="risk-title">Epistemic <em>Risk</em></div>
+      <div class="risk-desc">Deepfakes, synthetic media, and AI misinformation erode the shared factual basis of public life. AI impersonations scammed people out of $5.3 billion in 2025. A deepfake of a finance minister defrauded a retired doctor of her savings.</div>
+      <div class="risk-stat">70% of AI experts are highly worried about AI-generated inaccurate information — the top shared concern across groups.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-n">03</div>
+      <div class="risk-title">Environmental <em>Cost</em></div>
+      <div class="risk-desc">AI's carbon and water footprint is growing faster than most climate commitments. Training GPT-3 evaporated 700,000 liters of freshwater. US data centers are projected to reach 12% of national electricity consumption by 2028.</div>
+      <div class="risk-stat">AI carbon footprint: 32.6–79.7M tons CO₂ in 2025. Water: up to 764 billion liters.<a class="risk-src" href="https://www.sciencedirect.com/science/article/pii/S2666389925002788" target="_blank">ScienceDirect, 2025</a></div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-n">04</div>
+      <div class="risk-title">Economic <em>Disruption</em></div>
+      <div class="risk-desc">Job displacement is uneven and accelerating. The communities least able to absorb disruption bear the most risk. Productivity gains are concentrating at the top. Entry-level roles are declining fastest — the exact roles that build career foundations.</div>
+      <div class="risk-stat">56% of US adults are very concerned about AI eliminating jobs. Only 25% of AI experts share that concern.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-n">05</div>
+      <div class="risk-title">Security <em>&</em> Warfare</div>
+      <div class="risk-desc">AI is lowering the barrier for cyberattacks, biological and chemical weapon design, and autonomous weapons development. Facial recognition deployed in conflict zones has caused wrongful detentions. Biometric data from humanitarian crises has been misused by state actors.</div>
+      <div class="risk-stat">AI deepfake-as-a-service financial fraud caused billions in losses in 2025. Documented state misuse of humanitarian biometric data in multiple conflicts.<a class="risk-src" href="https://aihub.org/2026/03/04/top-ai-ethics-and-policy-issues-of-2025-and-what-to-expect-in-2026/" target="_blank">AIhub, 2026</a></div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-n">06</div>
+      <div class="risk-title">Governance <em>&</em> Power</div>
+      <div class="risk-desc">AI capability is concentrating in a handful of companies and governments. Regulation is fragmented and slow. The EU AI Act is the most comprehensive framework — enforcement begins August 2026. The US still has no federal AI law. 83% of AI investment in Africa concentrates in just four countries.</div>
+      <div class="risk-stat">45 US states proposed AI bills in 2024. 31 enacted laws. Zero at the federal level.<a class="risk-src" href="https://www.cimplifi.com/resources/the-updated-state-of-ai-regulations-for-2025/" target="_blank">Cimplifi, 2025</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ECOSYSTEM: Funders, VCs, Field-builders, Conveners -->
+<div class="section-wrap fade-in" id="ecosystem">
+  <div class="section-head">
+    <h2 class="section-title">The <em>ecosystem</em></h2>
+    <a class="see-all" href="/ecosystem">Full ecosystem map →</a>
+  </div>
+  <p style="font-size:13px; color:var(--slate); max-width:640px; line-height:1.75; margin-bottom:24px;">Who funds, convenes, builds infrastructure, and shapes policy in this space. Different from the orgs doing direct work — this is the layer that determines whether the field survives.</p>
+
+  <div style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--teal); margin-bottom:14px;">Funders</div>
+  <div class="card-grid-4" style="margin-bottom:24px;">
+    <div class="ecosystem-card">
+      <div class="eco-role">Foundation / AI-focused</div>
+      <div class="eco-name">Patrick McGovern Foundation</div>
+      <div class="eco-desc">The most direct global funder of AI for social good. Serious grantmaking, not a checkbook. Active in field-building.</div>
+      <a class="eco-link" href="https://mcgovern.org" target="_blank">mcgovern.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Foundation</div>
+      <div class="eco-name">MacArthur Foundation</div>
+      <div class="eco-desc">AI Opportunity program focuses on AI, economy, and workforce with young people and community-centered development in Chicago.</div>
+      <a class="eco-link" href="https://macfound.org" target="_blank">macfound.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Foundation</div>
+      <div class="eco-name">Ford Foundation</div>
+      <div class="eco-desc">Social justice framing. Moves slowly but with real weight. NYC-headquartered. Focus on inequality and technology governance.</div>
+      <a class="eco-link" href="https://fordfoundation.org" target="_blank">fordfoundation.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Foundation / Tech-aligned</div>
+      <div class="eco-name">Mozilla Foundation</div>
+      <div class="eco-desc">Responsible tech framing that bridges AI and social impact audiences. Both a funder and a convener. Strong on digital rights.</div>
+      <a class="eco-link" href="https://foundation.mozilla.org" target="_blank">foundation.mozilla.org →</a>
+    </div>
+  </div>
+
+  <div style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--teal); margin-bottom:14px;">Conveners & Field-builders</div>
+  <div class="card-grid-4" style="margin-bottom:24px;">
+    <div class="ecosystem-card">
+      <div class="eco-role">Accelerator / NYC</div>
+      <div class="eco-name">Blue Ridge Labs</div>
+      <div class="eco-desc">Builds tech with underserved NYC communities. One of the few practicing participatory design at product scale.</div>
+      <a class="eco-link" href="https://blueridgelabs.org" target="_blank">blueridgelabs.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">NGO Accelerator</div>
+      <div class="eco-name">Fast Forward</div>
+      <div class="eco-desc">Accelerator and funder for tech nonprofits. AI for Humanity newsletter, grantmaking tools, and The Philanthropic Reset white paper.</div>
+      <a class="eco-link" href="https://ffwd.org" target="_blank">ffwd.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Data Science / NYC</div>
+      <div class="eco-name">DataKind</div>
+      <div class="eco-desc">Matches data scientists with nonprofits on specific impact projects. Has shipped real work across health, equity, and education.</div>
+      <a class="eco-link" href="https://datakind.org" target="_blank">datakind.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Research / Evaluation</div>
+      <div class="eco-name">J-PAL</div>
+      <div class="eco-desc">Rigorous evaluation of AI interventions for poverty reduction. Building the evidence base the entire field is missing.</div>
+      <a class="eco-link" href="https://povertyactionlab.org" target="_blank">povertyactionlab.org →</a>
+    </div>
+  </div>
+
+  <div style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--teal); margin-bottom:14px;">Governance & Ethics</div>
+  <div class="card-grid-4">
+    <div class="ecosystem-card">
+      <div class="eco-role">Research Institute</div>
+      <div class="eco-name">AI Now Institute</div>
+      <div class="eco-desc">Independent research on AI's social harms. Annual reports are definitive on bias, labor, surveillance, accountability.</div>
+      <a class="eco-link" href="https://ainowinstitute.org" target="_blank">ainowinstitute.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Research / Advocacy</div>
+      <div class="eco-name">Algorithmic Justice League</div>
+      <div class="eco-desc">Joy Buolamwini's org. Exposed facial recognition failures and racial bias. Most cited work on AI bias in social impact contexts.</div>
+      <a class="eco-link" href="https://ajl.org" target="_blank">ajl.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Multi-stakeholder Body</div>
+      <div class="eco-name">Partnership on AI</div>
+      <div class="eco-desc">Civil society, academic, and industry voices on responsible AI. Funders and institutional leaders know this org.</div>
+      <a class="eco-link" href="https://partnershiponai.org" target="_blank">partnershiponai.org →</a>
+    </div>
+    <div class="ecosystem-card">
+      <div class="eco-role">Coalition</div>
+      <div class="eco-name">Humanity AI</div>
+      <div class="eco-desc">Uniting philanthropy in a broad coalition to build a more human future in which AI is shaped by and for people.</div>
+      <a class="eco-link" href="https://humanityai.ai" target="_blank">humanityai.ai →</a>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- EVENTS -->
+<div class="section-wrap fade-in" id="events">
+  <div class="section-head">
+    <h2 class="section-title">Upcoming <em>events</em></h2>
+    <a class="see-all" href="/events">All events →</a>
+  </div>
+  <div class="events-list">
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">29</div><div class="event-month">Apr</div></div>
+      <div><div class="event-name">AI + Social Good — NYC Hub Founding Meetup</div><div class="event-info">Inaugural gathering. Practitioners, funders, technologists. No hype welcome.</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">11–17</div><div class="event-month">May</div></div>
+      <div><div class="event-name">NYC AI Week 2026</div><div class="event-info">Citywide AI festival by Pulse NYC. Workshops, panels, talks across sectors. Multiple social good events.</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">15</div><div class="event-month">May</div></div>
+      <div><div class="event-name">Climate Change AI Workshop @ ICLR</div><div class="event-info">Research + practitioner presentations on ML for climate mitigation and adaptation.</div></div>
+      <div class="event-loc">Vienna</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">1–7</div><div class="event-month">Jun</div></div>
+      <div><div class="event-name">NYC Tech Week 2026 — a16z</div><div class="event-info">1,000+ events citywide. Submit your own event. Social good and impact track opportunities.</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">TBD</div><div class="event-month">Jun</div></div>
+      <div><div class="event-name">DataKind DataDive — NYC</div><div class="event-info">Weekend sprint pairing data scientists with local nonprofits. Open to technical volunteers.</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">7–10</div><div class="event-month">Jul</div></div>
+      <div><div class="event-name">AI for Good Global Summit 2026 — ITU / UN</div><div class="event-info">Back-to-back with the inaugural UN Global Dialogue on AI Governance. 1,000+ speakers, 169 countries. The premier global platform.</div></div>
+      <div class="event-loc">Geneva</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">15–21</div><div class="event-month">Aug</div></div>
+      <div><div class="event-name">IJCAI-ECAI 2026 — AI for Social Good Track</div><div class="event-info">Premier academic AI conference with a dedicated AI for Social Good special track.</div></div>
+      <div class="event-loc">Bremen</div>
+    </div>
+    <div class="event-row">
+      <div class="event-date-col"><div class="event-day">9–10</div><div class="event-month">Dec</div></div>
+      <div><div class="event-name">The AI Summit New York — Javits Center</div><div class="event-info">Commercial AI summit. Useful for tracking enterprise adoption and finding industry partners.</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+    <div class="event-row" style="background: rgba(26,107,94,0.04); border-color: var(--teal);">
+      <div class="event-date-col"><div class="event-day" style="font-size:14px; padding-top:4px;">🔔</div><div class="event-month">Ongoing</div></div>
+      <div><div class="event-name">Luma NYC — AI & Climate Events</div><div class="event-info">Continuous NYC-based events. Monitor: lu.ma/artificialintelligencenyc · luma.com/nyc · Bond AI (lu.ma/genai-ny)</div></div>
+      <div class="event-loc nyc">NYC ★</div>
+    </div>
+  </div>
+</div>
+
+<!-- NYC BANNER -->
+<div class="nyc-band" id="nyc">
+  <div class="nyc-inner">
+    <div>
+      <div class="nyc-eyebrow">Community Hub</div>
+      <div class="nyc-title">AI × Social Good — New York City</div>
+      <p class="nyc-desc">A gathering point for AI practitioners, social impact organizations, and funders in NYC who want to do this work seriously. Global resource. Local community. Built on honest field intelligence, not press releases.</p>
+    </div>
+    <button class="nyc-btn">Join the Hub →</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-note">The State of AI for Social Good · Curated by <a href="#">Angela</a> · <a href="#">Abyss Innovation Labs</a> · NYC</div>
+  <div class="footer-note"><a href="#">Submit an org</a> · <a href="#">Suggest an event</a> · <a href="#">Share a resource</a></div>
+</footer>
+
+<script>
+  function showDomain(domain, btn) {
+    document.querySelectorAll('.domain-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.domain-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + domain).classList.add('active');
+  }
+
+  function toggleMore() {
+    const extras = document.querySelectorAll('.extra-tab');
+    const btn = document.getElementById('moreBtnText');
+    const isHidden = extras[0].style.display === 'none';
+    extras.forEach(t => t.style.display = isHidden ? 'inline-flex' : 'none');
+    btn.textContent = isHidden ? '− fewer domains' : '+ 4 more domains';
+  }
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.07 });
+  document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
