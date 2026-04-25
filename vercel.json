@@ -7,5 +7,10 @@
     { "source": "/risks",         "destination": "/risks/index.html" },
     { "source": "/learn",         "destination": "/learn/index.html" },
     { "source": "/admin",         "destination": "/admin/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/daily-research",    "schedule": "0 7 * * *"   },
+    { "path": "/api/weekly-validation", "schedule": "0 8 * * 0"   },
+    { "path": "/api/monthly-audit",     "schedule": "0 9 1 * *"   }
   ]
 }
