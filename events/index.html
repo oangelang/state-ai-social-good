@@ -104,17 +104,19 @@ function render() {
     }
     const isPast = ev.event_date && ev.event_date < today;
     const fmtLabel = ev.format ? `<span class="tag tag-muted" style="margin-left:6px;">${esc(ev.format)}</span>` : '';
-    return `<div class="event-row" style="${isPast ? 'opacity:.5;' : ''}">
+    const inner = `
       <div class="event-date-col">
         <div class="event-day">${day}</div>
         <div class="event-month">${month}</div>
       </div>
       <div>
         <div class="event-name">${esc(ev.name)}${fmtLabel}</div>
-        <div class="event-meta">${esc(ev.description||'')}${ev.url ? ` <a href="${esc(ev.url)}" target="_blank" style="color:var(--teal);font-size:10px;">↗</a>` : ''}</div>
+        <div class="event-meta">${esc(ev.description||'')}</div>
       </div>
-      <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>
-    </div>`;
+      <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>`;
+    return ev.url
+      ? `<a class="event-row" href="${esc(ev.url)}" target="_blank" style="${isPast ? 'opacity:.5;' : ''}">${inner}</a>`
+      : `<div class="event-row" style="${isPast ? 'opacity:.5;' : ''}">${inner}</div>`;
   }).join('');
 }
 

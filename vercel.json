@@ -5,6 +5,7 @@
     { "source": "/ecosystem",     "destination": "/ecosystem/index.html" },
     { "source": "/events",        "destination": "/events/index.html" },
     { "source": "/risks",         "destination": "/risks/index.html" },
-    { "source": "/learn",         "destination": "/learn/index.html" }
+    { "source": "/learn",         "destination": "/learn/index.html" },
+    { "source": "/admin",         "destination": "/admin/index.html" }
   ]
 }

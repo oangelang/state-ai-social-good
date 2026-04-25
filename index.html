@@ -8,47 +8,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --ink: #0e0e0e;
-  --paper: #f4f0e8;
-  --warm-white: #faf8f3;
-  --teal: #1a6b5e;
-  --teal-light: #2a8f7f;
-  --teal-muted: #e0eeeb;
-  --gold: #c8891e;
-  --gold-light: #f0c060;
-  --rust: #b84a2e;
-  --slate: #4a5568;
-  --muted: #8a8880;
-  --border: rgba(14,14,14,0.12);
+  --ink: #0e0e0e; --paper: #f4f0e8; --warm-white: #faf8f3;
+  --teal: #1a6b5e; --teal-light: #2a8f7f; --teal-muted: #e0eeeb;
+  --gold: #c8891e; --gold-light: #f0c060; --rust: #b84a2e;
+  --slate: #4a5568; --muted: #8a8880; --border: rgba(14,14,14,0.12);
 }
-
 html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'DM Mono', monospace;
-  background: var(--paper);
-  color: var(--ink);
-  overflow-x: hidden;
-}
-
+body { font-family: 'DM Mono', monospace; background: var(--paper); color: var(--ink); overflow-x: hidden; }
 body::before {
-  content: '';
-  position: fixed; inset: 0;
+  content: ''; position: fixed; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none; z-index: 9999; opacity: 0.5;
 }
 
 /* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 16px 40px;
-  background: rgba(244,240,232,0.93);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; background: rgba(244,240,232,0.93); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
 .nav-logo { font-size: 11px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); }
 .nav-links { display: flex; gap: 28px; list-style: none; }
 .nav-links a { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate); text-decoration: none; transition: color 0.2s; }
@@ -57,11 +32,7 @@ nav {
 .nav-cta:hover { background: var(--teal-light); }
 
 /* ── HERO ── */
-.hero {
-  min-height: 100vh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 110px 40px 56px; text-align: center;
-}
+.hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 110px 40px 56px; text-align: center; }
 .hero-eyebrow { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--teal); margin-bottom: 22px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
 .hero-title { font-family: 'Fraunces', serif; font-size: clamp(44px, 7vw, 92px); font-weight: 300; line-height: 1.04; max-width: 900px; margin-bottom: 6px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
 .hero-title em { font-style: italic; color: var(--teal); }
@@ -71,62 +42,44 @@ nav {
 /* ── DOMAIN NAVIGATOR ── */
 .domain-nav { width: 100%; max-width: 1160px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.78s; }
 .domain-nav-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
-.domain-tabs { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 28px; align-items: center; }
-
-.domain-tab {
-  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 9px 18px; border: 1px solid var(--border); background: var(--warm-white);
-  color: var(--slate); cursor: pointer; border-radius: 2px; transition: all 0.2s; position: relative; overflow: hidden;
-}
+.domain-tabs { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 28px; }
+.domain-tab { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 18px; border: 1px solid var(--border); background: var(--warm-white); color: var(--slate); cursor: pointer; border-radius: 2px; transition: all 0.2s; position: relative; overflow: hidden; }
 .domain-tab::before { content: ''; position: absolute; inset: 0; background: var(--teal); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; z-index: 0; }
 .domain-tab span { position: relative; z-index: 1; }
 .domain-tab:hover::before, .domain-tab.active::before { transform: scaleX(1); }
 .domain-tab:hover, .domain-tab.active { color: white; border-color: var(--teal); }
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-right: 6px; position: relative; z-index: 1; vertical-align: middle; margin-bottom: 1px; }
-
-.more-btn {
-  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 9px 16px; border: 1px dashed var(--teal); background: transparent;
-  color: var(--teal); cursor: pointer; border-radius: 2px; transition: all 0.2s;
-}
-.more-btn:hover { background: var(--teal-muted); }
+.suggest-tab { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 16px; border: 1px dashed var(--teal); background: transparent; color: var(--teal); cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+.suggest-tab:hover { background: var(--teal-muted); }
 
 /* ── DOMAIN PANEL ── */
 .domain-panel { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 32px 40px; text-align: left; display: none; }
 .domain-panel.active { display: block; animation: panelIn 0.3s ease; }
 @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
 .panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .panel-name { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; }
 .panel-name em { font-style: italic; color: var(--teal); }
 .panel-stats { display: flex; gap: 20px; }
 .panel-stat-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
 .panel-stat-val { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; color: var(--teal); }
-
 .panel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 20px; }
 .col-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 .col-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.col-label.tried { color: var(--teal); }
-.col-label.caution { color: var(--rust); }
-.col-label.open { color: var(--gold); }
-
+.col-label.tried { color: var(--teal); } .col-label.caution { color: var(--rust); } .col-label.open { color: var(--gold); }
 .panel-item { font-size: 11px; line-height: 1.55; color: var(--slate); padding: 8px 10px; background: rgba(255,255,255,0.7); border-left: 2px solid var(--border); margin-bottom: 6px; border-radius: 0 2px 2px 0; transition: all 0.18s; }
-.panel-item a { color: inherit; text-decoration: none; display: block; }
 .panel-item:hover { background: white; border-left-color: var(--teal); transform: translateX(2px); }
 .panel-item.warn { border-left-color: rgba(184,74,46,0.35); }
 .panel-item.warn:hover { border-left-color: var(--rust); }
 .panel-item.q { border-left-color: rgba(200,137,30,0.3); }
 .panel-item.q:hover { border-left-color: var(--gold); }
 .item-org { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 3px; font-weight: 500; }
-.item-src { font-size: 9px; color: var(--muted); margin-top: 4px; text-decoration: underline; }
-
+.item-src { font-size: 9px; color: var(--muted); margin-top: 4px; text-decoration: underline; display: block; }
 .panel-footer { display: flex; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border); }
 .panel-link { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); text-decoration: none; padding: 7px 14px; border: 1px solid var(--teal); border-radius: 2px; transition: all 0.2s; }
 .panel-link:hover { background: var(--teal); color: white; }
 
-/* ── SHARED SECTION STYLES ── */
+/* ── SHARED ── */
 .section-wrap { padding: 68px 40px; max-width: 1160px; margin: 0 auto; }
-.section-wrap.full { max-width: none; padding-left: 40px; padding-right: 40px; }
 .section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 .section-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; }
 .section-title em { font-style: italic; color: var(--teal); }
@@ -135,10 +88,8 @@ nav {
 .see-all:hover { background: var(--teal); color: white; }
 .divider { width: 100%; height: 1px; background: var(--border); }
 
-/* ── FRAMEWORK CALLOUT ── */
-.framework-box {
-  background: var(--ink); border-radius: 4px; padding: 32px 36px; margin-bottom: 28px;
-}
+/* ── FRAMEWORK ── */
+.framework-box { background: var(--ink); border-radius: 4px; padding: 32px 36px; margin-bottom: 28px; }
 .framework-box-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 8px; }
 .framework-box-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 300; color: var(--paper); margin-bottom: 6px; }
 .framework-box-title em { font-style: italic; color: var(--gold-light); }
@@ -149,10 +100,9 @@ nav {
 .fw-box-t { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--paper); margin-bottom: 4px; }
 .fw-box-d { font-size: 10px; color: rgba(244,240,232,0.45); line-height: 1.5; }
 
-/* ── RESOURCE CARDS ── */
+/* ── CARDS ── */
 .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-
 .resource-card { background: var(--warm-white); border: 1px solid var(--border); padding: 18px 20px; border-radius: 3px; text-decoration: none; display: block; color: inherit; transition: all 0.2s; position: relative; }
 .resource-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,94,0.09); }
 .card-year { position: absolute; top: 14px; right: 14px; font-size: 10px; color: var(--muted); }
@@ -162,10 +112,7 @@ nav {
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; background: var(--teal-muted); color: var(--teal); border-radius: 2px; }
 .tag-rust { background: rgba(184,74,46,0.08); color: var(--rust); }
-.tag-gold { background: rgba(200,137,30,0.1); color: var(--gold); }
-
-/* ── ECOSYSTEM CARDS ── */
-.ecosystem-card { background: var(--warm-white); border: 1px solid var(--border); padding: 18px 20px; border-radius: 3px; transition: all 0.2s; position: relative; }
+.ecosystem-card { background: var(--warm-white); border: 1px solid var(--border); padding: 18px 20px; border-radius: 3px; transition: all 0.2s; }
 .ecosystem-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26,107,94,0.09); }
 .eco-role { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
 .eco-name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 300; color: var(--ink); margin-bottom: 6px; }
@@ -192,7 +139,7 @@ nav {
 
 /* ── EVENTS ── */
 .events-list { display: flex; flex-direction: column; gap: 9px; }
-.event-row { display: grid; grid-template-columns: 72px 1fr auto; gap: 20px; align-items: center; padding: 14px 18px; background: var(--warm-white); border: 1px solid var(--border); border-radius: 3px; transition: all 0.2s; }
+.event-row { display: grid; grid-template-columns: 72px 1fr auto; gap: 20px; align-items: center; padding: 14px 18px; background: var(--warm-white); border: 1px solid var(--border); border-radius: 3px; transition: all 0.2s; text-decoration: none; color: inherit; }
 .event-row:hover { border-color: var(--teal); }
 .event-day { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 300; color: var(--teal); line-height: 1; }
 .event-month { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
@@ -214,11 +161,36 @@ nav {
 /* ── FOOTER ── */
 footer { padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
 .footer-note { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
-.footer-note a { color: var(--teal); text-decoration: none; }
+.footer-note a { color: var(--teal); text-decoration: none; cursor: pointer; }
+.footer-note a:hover { text-decoration: underline; }
+.footer-note button { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--teal); background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.04em; }
+.footer-note button:hover { text-decoration: underline; }
 
-/* ── LOADING SKELETON ── */
-.skeleton { background: linear-gradient(90deg, var(--border) 25%, rgba(14,14,14,0.06) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 2px; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ── MODALS ── */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(14,14,14,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-backdrop.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--paper); border: 1px solid var(--border); border-radius: 4px; padding: 36px; max-width: 460px; width: 90%; position: relative; transform: translateY(10px); transition: transform 0.22s ease; max-height: 90vh; overflow-y: auto; }
+.modal-backdrop.open .modal { transform: translateY(0); }
+.modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 20px; color: var(--muted); cursor: pointer; line-height: 1; }
+.modal-close:hover { color: var(--ink); }
+.modal-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+.modal-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 300; margin-bottom: 6px; }
+.modal-title em { font-style: italic; color: var(--teal); }
+.modal-desc { font-size: 12px; color: var(--slate); line-height: 1.65; margin-bottom: 24px; }
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+.form-label span { color: var(--rust); margin-left: 2px; }
+.form-input, .form-select, .form-textarea { width: 100%; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--ink); background: white; border: 1px solid var(--border); padding: 9px 12px; border-radius: 2px; outline: none; transition: border-color 0.18s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--teal); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-submit { width: 100%; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; background: var(--teal); color: white; border: none; padding: 12px; border-radius: 2px; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.form-submit:hover { background: var(--teal-light); }
+.form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.form-success { text-align: center; padding: 20px 0; }
+.form-success-icon { font-size: 32px; margin-bottom: 12px; }
+.form-success-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; margin-bottom: 8px; }
+.form-success-desc { font-size: 12px; color: var(--slate); line-height: 1.6; }
+.form-error { font-size: 11px; color: var(--rust); margin-top: 8px; }
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -228,7 +200,6 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <div class="nav-logo">AI × Social Good</div>
   <ul class="nav-links">
@@ -239,7 +210,7 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
     <li><a href="#events">Events</a></li>
     <li><a href="#nyc">NYC Hub</a></li>
   </ul>
-  <button class="nav-cta">Join the Hub →</button>
+  <button class="nav-cta" onclick="openModal('hub-modal')">Join the Hub →</button>
 </nav>
 
 <!-- HERO -->
@@ -249,15 +220,10 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
   <div class="hero-sub">Updated continuously. Curated honestly. No hype welcome.</div>
   <p class="hero-desc">For the practitioners, funders, and technologists who need to know what has actually been tried — what worked, what failed, and where the real gaps are. Not a highlight reel. A field map.</p>
 
-  <!-- DOMAIN NAVIGATOR -->
   <div class="domain-nav" id="domains">
     <div class="domain-nav-label">Explore by domain — what's been tried, what failed, what's still open</div>
-    <div class="domain-tabs" id="domainTabsRow">
-      <!-- Tabs injected by JS -->
-    </div>
-    <div id="domainPanels">
-      <!-- Panels injected by JS -->
-    </div>
+    <div class="domain-tabs" id="domainTabsRow"></div>
+    <div id="domainPanels"></div>
   </div>
 </section>
 
@@ -269,11 +235,10 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
     <h2 class="section-title">Field <em>intelligence</em></h2>
     <a class="see-all" href="/resources">View all resources →</a>
   </div>
-
   <div class="framework-box">
     <div class="framework-box-eyebrow">SSIR Framework · 2024</div>
     <div class="framework-box-title">The four ways nonprofits are <em>actually using AI</em></div>
-    <div class="framework-box-desc">Stanford Social Innovation Review's 2024 landscape mapping. Four core use case categories across the sector, mapped to SDGs. Notably excludes AI for internal operations — a gap the field is still catching up on. SDGs 3, 4, and 13 have the strongest potential, per their analysis.</div>
+    <div class="framework-box-desc">Stanford Social Innovation Review's 2024 landscape mapping. Four core use case categories across the sector, mapped to SDGs. Notably excludes AI for internal operations — a gap the field is still catching up on.</div>
     <div class="fw-four">
       <div class="fw-box"><div class="fw-box-n">01</div><div class="fw-box-t">Structuring Data</div><div class="fw-box-d">Organizing messy information into usable, decision-ready formats</div></div>
       <div class="fw-box"><div class="fw-box-n">02</div><div class="fw-box-t">Advising</div><div class="fw-box-d">AI-powered guidance, recommendations, and personalized support</div></div>
@@ -281,25 +246,19 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
       <div class="fw-box"><div class="fw-box-n">04</div><div class="fw-box-t">Platforms</div><div class="fw-box-d">Infrastructure enabling other organizations to build and act</div></div>
     </div>
   </div>
-
-  <div class="card-grid-3" id="resourceCards" style="margin-bottom:14px;">
-    <!-- Injected by JS -->
-  </div>
-
+  <div class="card-grid-3" id="resourceCards" style="margin-bottom:14px;"></div>
   <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border);">
     <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
       <div style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted);">Where we search — news, newsletters, communities & primary sources</div>
       <a class="see-all" href="/learn" style="font-size:9px; padding:4px 10px;">All sources →</a>
     </div>
-    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:10px;" id="learnCards">
-      <!-- Injected by JS -->
-    </div>
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px;" id="learnCards"></div>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<!-- RISKS — static, editorial content -->
+<!-- RISKS -->
 <div class="section-wrap fade-in" id="risks">
   <div class="section-head">
     <h2 class="section-title">The <em>real risks</em></h2>
@@ -307,42 +266,12 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
   </div>
   <p style="font-size:13px; color:var(--slate); max-width:640px; line-height:1.75; margin-bottom:24px;">A site about AI for social good that doesn't name the harms is a brochure, not a field resource. These six categories are documented, active, and inadequately addressed.</p>
   <div class="risks-grid">
-    <div class="risk-card">
-      <div class="risk-n">01</div>
-      <div class="risk-title">Bias <em>&</em> Discrimination</div>
-      <div class="risk-desc">AI systems trained on historical data inherit and amplify existing inequalities. Hiring tools, credit scoring, medical diagnostics, and criminal justice have all produced documented discriminatory outcomes even after explicit debiasing.</div>
-      <div class="risk-stat">55% of AI experts and 55% of the US public are highly worried about AI bias — the rare issue they agree on.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
-    </div>
-    <div class="risk-card">
-      <div class="risk-n">02</div>
-      <div class="risk-title">Epistemic <em>Risk</em></div>
-      <div class="risk-desc">Deepfakes, synthetic media, and AI misinformation erode the shared factual basis of public life. AI impersonations scammed people out of $5.3 billion in 2025. A deepfake of a finance minister defrauded a retired doctor of her savings.</div>
-      <div class="risk-stat">70% of AI experts are highly worried about AI-generated inaccurate information — the top shared concern across groups.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
-    </div>
-    <div class="risk-card">
-      <div class="risk-n">03</div>
-      <div class="risk-title">Environmental <em>Cost</em></div>
-      <div class="risk-desc">AI's carbon and water footprint is growing faster than most climate commitments. Training GPT-3 evaporated 700,000 liters of freshwater. US data centers are projected to reach 12% of national electricity consumption by 2028.</div>
-      <div class="risk-stat">AI carbon footprint: 32.6–79.7M tons CO₂ in 2025. Water: up to 764 billion liters.<a class="risk-src" href="https://www.sciencedirect.com/science/article/pii/S2666389925002788" target="_blank">ScienceDirect, 2025</a></div>
-    </div>
-    <div class="risk-card">
-      <div class="risk-n">04</div>
-      <div class="risk-title">Economic <em>Disruption</em></div>
-      <div class="risk-desc">Job displacement is uneven and accelerating. The communities least able to absorb disruption bear the most risk. Productivity gains are concentrating at the top. Entry-level roles are declining fastest — the exact roles that build career foundations.</div>
-      <div class="risk-stat">56% of US adults are very concerned about AI eliminating jobs. Only 25% of AI experts share that concern.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div>
-    </div>
-    <div class="risk-card">
-      <div class="risk-n">05</div>
-      <div class="risk-title">Security <em>&</em> Warfare</div>
-      <div class="risk-desc">AI is lowering the barrier for cyberattacks, biological and chemical weapon design, and autonomous weapons development. Facial recognition deployed in conflict zones has caused wrongful detentions. Biometric data from humanitarian crises has been misused by state actors.</div>
-      <div class="risk-stat">AI deepfake-as-a-service financial fraud caused billions in losses in 2025. Documented state misuse of humanitarian biometric data in multiple conflicts.<a class="risk-src" href="https://aihub.org/2026/03/04/top-ai-ethics-and-policy-issues-of-2025-and-what-to-expect-in-2026/" target="_blank">AIhub, 2026</a></div>
-    </div>
-    <div class="risk-card">
-      <div class="risk-n">06</div>
-      <div class="risk-title">Governance <em>&</em> Power</div>
-      <div class="risk-desc">AI capability is concentrating in a handful of companies and governments. Regulation is fragmented and slow. The EU AI Act is the most comprehensive framework — enforcement begins August 2026. The US still has no federal AI law. 83% of AI investment in Africa concentrates in just four countries.</div>
-      <div class="risk-stat">45 US states proposed AI bills in 2024. 31 enacted laws. Zero at the federal level.<a class="risk-src" href="https://www.cimplifi.com/resources/the-updated-state-of-ai-regulations-for-2025/" target="_blank">Cimplifi, 2025</a></div>
-    </div>
+    <div class="risk-card"><div class="risk-n">01</div><div class="risk-title">Bias <em>&</em> Discrimination</div><div class="risk-desc">AI systems trained on historical data inherit and amplify existing inequalities. Hiring tools, credit scoring, medical diagnostics, and criminal justice have all produced documented discriminatory outcomes even after explicit debiasing.</div><div class="risk-stat">55% of AI experts and 55% of the US public are highly worried about AI bias — the rare issue they agree on.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div></div>
+    <div class="risk-card"><div class="risk-n">02</div><div class="risk-title">Epistemic <em>Risk</em></div><div class="risk-desc">Deepfakes, synthetic media, and AI misinformation erode the shared factual basis of public life. AI impersonations scammed people out of $5.3 billion in 2025.</div><div class="risk-stat">70% of AI experts are highly worried about AI-generated inaccurate information — the top shared concern across groups.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div></div>
+    <div class="risk-card"><div class="risk-n">03</div><div class="risk-title">Environmental <em>Cost</em></div><div class="risk-desc">AI's carbon and water footprint is growing faster than most climate commitments. Training GPT-3 evaporated 700,000 liters of freshwater. US data centers projected at 12% of national electricity by 2028.</div><div class="risk-stat">AI carbon footprint: 32.6–79.7M tons CO₂ in 2025. Water: up to 764 billion liters.<a class="risk-src" href="https://www.sciencedirect.com/science/article/pii/S2666389925002788" target="_blank">ScienceDirect, 2025</a></div></div>
+    <div class="risk-card"><div class="risk-n">04</div><div class="risk-title">Economic <em>Disruption</em></div><div class="risk-desc">Job displacement is uneven and accelerating. Entry-level roles are declining fastest — the exact roles that build career foundations.</div><div class="risk-stat">56% of US adults are very concerned about AI eliminating jobs. Only 25% of AI experts share that concern.<a class="risk-src" href="https://pewresearch.org" target="_blank">Pew Research, 2025</a></div></div>
+    <div class="risk-card"><div class="risk-n">05</div><div class="risk-title">Security <em>&</em> Warfare</div><div class="risk-desc">AI is lowering the barrier for cyberattacks and autonomous weapons. Biometric data from humanitarian crises has been misused by state actors in multiple documented cases.</div><div class="risk-stat">AI deepfake-as-a-service financial fraud caused billions in losses in 2025.<a class="risk-src" href="https://aihub.org/2026/03/04/top-ai-ethics-and-policy-issues-of-2025-and-what-to-expect-in-2026/" target="_blank">AIhub, 2026</a></div></div>
+    <div class="risk-card"><div class="risk-n">06</div><div class="risk-title">Governance <em>&</em> Power</div><div class="risk-desc">AI capability is concentrating in a handful of companies and governments. The EU AI Act enforcement begins August 2026. The US still has no federal AI law.</div><div class="risk-stat">45 US states proposed AI bills in 2024. 31 enacted laws. Zero at the federal level.<a class="risk-src" href="https://www.cimplifi.com/resources/the-updated-state-of-ai-regulations-for-2025/" target="_blank">Cimplifi, 2025</a></div></div>
   </div>
 </div>
 
@@ -355,7 +284,7 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
     <a class="see-all" href="/ecosystem">Full ecosystem map →</a>
   </div>
   <p style="font-size:13px; color:var(--slate); max-width:640px; line-height:1.75; margin-bottom:24px;">Who funds, convenes, builds infrastructure, and shapes policy in this space. Different from the orgs doing direct work — this is the layer that determines whether the field survives.</p>
-  <div id="ecosystemSection"><!-- Injected by JS --></div>
+  <div id="ecosystemSection"></div>
 </div>
 
 <div class="divider"></div>
@@ -366,7 +295,7 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
     <h2 class="section-title">Upcoming <em>events</em></h2>
     <a class="see-all" href="/events">All events →</a>
   </div>
-  <div class="events-list" id="eventsList"><!-- Injected by JS --></div>
+  <div class="events-list" id="eventsList"></div>
 </div>
 
 <!-- NYC BANNER -->
@@ -377,14 +306,218 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
       <div class="nyc-title">AI × Social Good — New York City</div>
       <p class="nyc-desc">A gathering point for AI practitioners, social impact organizations, and funders in NYC who want to do this work seriously. Global resource. Local community. Built on honest field intelligence, not press releases.</p>
     </div>
-    <button class="nyc-btn">Join the Hub →</button>
+    <button class="nyc-btn" onclick="openModal('hub-modal')">Join the Hub →</button>
   </div>
 </div>
 
 <footer>
-  <div class="footer-note">The State of AI for Social Good · Curated by <a href="#">Angela</a> · <a href="#">Abyss Innovation Labs</a> · NYC</div>
-  <div class="footer-note"><a href="#">Submit an org</a> · <a href="#">Suggest an event</a> · <a href="#">Share a resource</a></div>
+  <div class="footer-note">The State of AI for Social Good · Curated by <a href="https://linkedin.com/in/angelang" target="_blank">Angela</a> · NYC</div>
+  <div class="footer-note">
+    <button onclick="openModal('org-modal')">Suggest an org</button> ·
+    <button onclick="openModal('event-modal')">Submit an event</button> ·
+    <button onclick="openModal('resource-modal')">Share a resource</button>
+  </div>
 </footer>
+
+<!-- ── MODALS ─────────────────────────────────────────────────────────── -->
+
+<!-- HUB SIGNUP -->
+<div class="modal-backdrop" id="hub-modal" onclick="closeOnBackdrop(event,'hub-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('hub-modal')">×</button>
+    <div id="hub-modal-body">
+      <div class="modal-eyebrow">NYC Hub</div>
+      <h2 class="modal-title">Join the <em>community</em></h2>
+      <p class="modal-desc">Get updates on events, new field intelligence, and opportunities to connect with practitioners, funders, and technologists in New York City.</p>
+      <form onsubmit="submitHub(event)">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input" type="text" id="hub-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span>*</span></label>
+          <input class="form-input" type="email" id="hub-email" placeholder="you@example.com" required>
+        </div>
+        <button class="form-submit" type="submit">Join the Hub →</button>
+        <div class="form-error" id="hub-error" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SUGGEST AN ORG -->
+<div class="modal-backdrop" id="org-modal" onclick="closeOnBackdrop(event,'org-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('org-modal')">×</button>
+    <div id="org-modal-body">
+      <div class="modal-eyebrow">Community contribution</div>
+      <h2 class="modal-title">Suggest an <em>organization</em></h2>
+      <p class="modal-desc">Know an org doing serious AI for social good work? Share it. Angela reviews submissions and publishes what meets the bar.</p>
+      <form onsubmit="submitForm(event,'org-modal','organization')">
+        <div class="form-group">
+          <label class="form-label">Organization name <span>*</span></label>
+          <input class="form-input" type="text" name="name" placeholder="e.g. DataKind" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website URL <span>*</span></label>
+          <input class="form-input" type="url" name="url" placeholder="https://" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What are they doing with AI?</label>
+          <textarea class="form-textarea" name="description" placeholder="What problem, what approach, what evidence of impact?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Domain</label>
+          <select class="form-select" name="domain">
+            <option value="">— Select a domain —</option>
+            <option>Climate</option><option>Health</option><option>Ocean & Water</option>
+            <option>Food & Agriculture</option><option>Economic Equity</option>
+            <option>Education</option><option>Humanitarian</option><option>Energy</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Evidence tier</label>
+          <select class="form-select" name="evidence_tier">
+            <option value="">— How far along? —</option>
+            <option value="deployed">Deployed at scale</option>
+            <option value="pilot">Pilot / limited deployment</option>
+            <option value="research">Research / proof of concept</option>
+            <option value="proposed">Proposed / concept stage</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your email (optional)</label>
+          <input class="form-input" type="email" name="submitter_email" placeholder="In case we have questions">
+        </div>
+        <button class="form-submit" type="submit">Submit for review →</button>
+        <div class="form-error" id="org-error" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT AN EVENT -->
+<div class="modal-backdrop" id="event-modal" onclick="closeOnBackdrop(event,'event-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('event-modal')">×</button>
+    <div id="event-modal-body">
+      <div class="modal-eyebrow">Community contribution</div>
+      <h2 class="modal-title">Submit an <em>event</em></h2>
+      <p class="modal-desc">Conferences, meetups, workshops — anything worth putting on the radar for AI + social good practitioners.</p>
+      <form onsubmit="submitForm(event,'event-modal','event')">
+        <div class="form-group">
+          <label class="form-label">Event name <span>*</span></label>
+          <input class="form-input" type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Event URL <span>*</span></label>
+          <input class="form-input" type="url" name="url" placeholder="https://" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" type="date" name="event_date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input class="form-input" type="text" name="location" placeholder="City, Country or Virtual">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Format</label>
+          <select class="form-select" name="format">
+            <option value="">—</option>
+            <option value="in-person">In person</option>
+            <option value="virtual">Virtual</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" name="description" placeholder="What is it? Who is it for?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your email (optional)</label>
+          <input class="form-input" type="email" name="submitter_email">
+        </div>
+        <button class="form-submit" type="submit">Submit for review →</button>
+        <div class="form-error" id="event-error" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE A RESOURCE -->
+<div class="modal-backdrop" id="resource-modal" onclick="closeOnBackdrop(event,'resource-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('resource-modal')">×</button>
+    <div id="resource-modal-body">
+      <div class="modal-eyebrow">Community contribution</div>
+      <h2 class="modal-title">Share a <em>resource</em></h2>
+      <p class="modal-desc">A report, framework, newsletter, dataset, or tool worth adding to the field library.</p>
+      <form onsubmit="submitForm(event,'resource-modal','resource')">
+        <div class="form-group">
+          <label class="form-label">Title <span>*</span></label>
+          <input class="form-input" type="text" name="title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL <span>*</span></label>
+          <input class="form-input" type="url" name="url" placeholder="https://" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-select" name="resource_type">
+            <option value="">—</option>
+            <option value="research">Research / paper</option>
+            <option value="framework">Framework / guide</option>
+            <option value="report">Report</option>
+            <option value="journalism">Journalism</option>
+            <option value="newsletter">Newsletter</option>
+            <option value="podcast">Podcast</option>
+            <option value="tool">Tool / dataset</option>
+            <option value="course">Course</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Why does this belong here?</label>
+          <textarea class="form-textarea" name="description" placeholder="What makes it worth reading for this field?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your email (optional)</label>
+          <input class="form-input" type="email" name="submitter_email">
+        </div>
+        <button class="form-submit" type="submit">Submit for review →</button>
+        <div class="form-error" id="resource-error" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SUGGEST A DOMAIN -->
+<div class="modal-backdrop" id="domain-modal" onclick="closeOnBackdrop(event,'domain-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('domain-modal')">×</button>
+    <div id="domain-modal-body">
+      <div class="modal-eyebrow">Domain suggestion</div>
+      <h2 class="modal-title">Suggest a <em>domain</em></h2>
+      <p class="modal-desc">Working in an area not listed? We're building out coverage. Tell us what's missing and what's happening in it.</p>
+      <form onsubmit="submitForm(event,'domain-modal','organization')">
+        <div class="form-group">
+          <label class="form-label">Domain name <span>*</span></label>
+          <input class="form-input" type="text" name="name" placeholder="e.g. Criminal Justice Reform, Mental Health" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What AI work is happening here?</label>
+          <textarea class="form-textarea" name="description" placeholder="Key organizations, use cases, state of evidence..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your email (optional)</label>
+          <input class="form-input" type="email" name="submitter_email">
+        </div>
+        <button class="form-submit" type="submit">Send suggestion →</button>
+        <div class="form-error" id="domain-error" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
@@ -392,74 +525,110 @@ const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── DOMAIN PANELS ────────────────────────────────────────────────────────────
+// ── UTIL ─────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function closeOnBackdrop(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open')); document.body.style.overflow=''; });
+
+// ── HUB SIGNUP ────────────────────────────────────────────────────────────────
+async function submitHub(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  const name = document.getElementById('hub-name').value;
+  const email = document.getElementById('hub-email').value;
+  const errEl = document.getElementById('hub-error');
+  errEl.style.display = 'none';
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/signups`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ name, email, source: 'hub' }),
+  });
+
+  if (res.ok || res.status === 201) {
+    document.getElementById('hub-modal-body').innerHTML = `<div class="form-success"><div class="form-success-icon">✓</div><div class="form-success-title">You're in.</div><div class="form-success-desc">We'll be in touch with events and field updates. See you in NYC.</div></div>`;
+  } else {
+    btn.disabled = false; btn.textContent = 'Join the Hub →';
+    errEl.textContent = 'Something went wrong. Try again or email directly.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ── SUBMISSION FORMS ──────────────────────────────────────────────────────────
+async function submitForm(e, modalId, type) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  const errEl = document.getElementById(modalId.replace('-modal', '-error'));
+  errEl.style.display = 'none';
+
+  const data = {};
+  new FormData(form).forEach((v, k) => { if (k !== 'submitter_email' && v) data[k] = v; });
+  const email = form.querySelector('[name=submitter_email]')?.value || null;
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ submission_type: type, submitted_data: data, submitter_email: email }),
+  });
+
+  if (res.ok || res.status === 201) {
+    const bodyId = modalId.replace('-modal', '-modal-body');
+    document.getElementById(bodyId).innerHTML = `<div class="form-success"><div class="form-success-icon">✓</div><div class="form-success-title">Received.</div><div class="form-success-desc">Thanks for contributing. Angela reviews submissions and publishes what meets the bar — usually within a week.</div></div>`;
+  } else {
+    btn.disabled = false; btn.textContent = 'Submit for review →';
+    errEl.textContent = 'Something went wrong. Try again shortly.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ── DOMAIN PANELS ─────────────────────────────────────────────────────────────
 const DOMAIN_LABELS = {
-  climate:      'Climate & Environment',
-  health:       'Health & Medicine',
-  ocean:        'Ocean & Water',
-  food:         'Food & Agriculture',
-  equity:       'Economic Equity',
-  education:    'Education & Access',
-  humanitarian: 'Humanitarian Response',
-  energy:       'Energy & Materials',
+  climate: 'Climate & Environment', health: 'Health & Medicine',
+  ocean: 'Ocean & Water', food: 'Food & Agriculture',
+  equity: 'Economic Equity', education: 'Education & Access',
+  humanitarian: 'Humanitarian Response', energy: 'Energy & Materials',
 };
+const ALL_DOMAINS = ['climate','health','ocean','food','equity','education','humanitarian','energy'];
 
-const PRIMARY_DOMAINS = ['climate', 'health', 'ocean', 'food'];
-const EXTRA_DOMAINS   = ['equity', 'education', 'humanitarian', 'energy'];
-
-let domainsData = {};
-let panelItemsData = {};
-let activeDomain = 'climate';
-let extrasVisible = false;
+let domainsData = {}, panelItemsData = {}, activeDomain = 'climate';
 
 async function loadDomains() {
   const [{ data: domains }, { data: items }] = await Promise.all([
-    db.from('domains').select('*').eq('status', 'published'),
-    db.from('domain_panel_items').select('*').eq('status', 'published').order('sort_order'),
+    db.from('domains').select('*').eq('status','published'),
+    db.from('domain_panel_items').select('*').eq('status','published').order('sort_order'),
   ]);
-
-  (domains || []).forEach(d => domainsData[d.slug] = d);
-  (items || []).forEach(item => {
-    if (!panelItemsData[item.domain_slug]) panelItemsData[item.domain_slug] = { tried: [], caution: [], open: [] };
-    panelItemsData[item.domain_slug][item.column_type].push(item);
+  (domains||[]).forEach(d => domainsData[d.slug] = d);
+  (items||[]).forEach(i => {
+    if (!panelItemsData[i.domain_slug]) panelItemsData[i.domain_slug] = { tried:[], caution:[], open:[] };
+    panelItemsData[i.domain_slug][i.column_type].push(i);
   });
-
   renderDomainTabs();
   renderDomainPanel(activeDomain);
 }
 
 function renderDomainTabs() {
-  const container = document.getElementById('domainTabsRow');
-  container.innerHTML = '';
-
-  PRIMARY_DOMAINS.forEach((slug, i) => {
-    container.appendChild(makeTab(slug, i === 0));
+  const row = document.getElementById('domainTabsRow');
+  row.innerHTML = '';
+  ALL_DOMAINS.forEach((slug, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'domain-tab' + (i === 0 ? ' active' : '');
+    btn.dataset.slug = slug;
+    btn.onclick = () => showDomain(slug, btn);
+    btn.innerHTML = `<span><span class="dot"></span>${DOMAIN_LABELS[slug]}</span>`;
+    row.appendChild(btn);
   });
-
-  const moreBtn = document.createElement('button');
-  moreBtn.className = 'more-btn';
-  moreBtn.id = 'moreBtn';
-  moreBtn.onclick = toggleMore;
-  moreBtn.innerHTML = '<span id="moreBtnText">+ 4 more domains</span>';
-  container.appendChild(moreBtn);
-
-  EXTRA_DOMAINS.forEach(slug => {
-    const tab = makeTab(slug, false);
-    tab.classList.add('extra-tab');
-    tab.style.display = 'none';
-    container.appendChild(tab);
-  });
-}
-
-function makeTab(slug, isActive) {
-  const btn = document.createElement('button');
-  btn.className = 'domain-tab' + (isActive ? ' active' : '');
-  btn.dataset.slug = slug;
-  btn.onclick = () => showDomain(slug, btn);
-  const label = DOMAIN_LABELS[slug] || slug;
-  btn.innerHTML = `<span><span class="dot"></span>${label}</span>`;
-  return btn;
+  const suggest = document.createElement('button');
+  suggest.className = 'suggest-tab';
+  suggest.onclick = () => openModal('domain-modal');
+  suggest.textContent = '+ Suggest a domain';
+  row.appendChild(suggest);
 }
 
 function showDomain(slug, btn) {
@@ -470,202 +639,117 @@ function showDomain(slug, btn) {
 }
 
 function renderDomainPanel(slug) {
-  const container = document.getElementById('domainPanels');
   const domain = domainsData[slug] || {};
-  const items = panelItemsData[slug] || { tried: [], caution: [], open: [] };
+  const items = panelItemsData[slug] || { tried:[], caution:[], open:[] };
   const label = DOMAIN_LABELS[slug] || slug;
+  const words = label.split(' '); const last = words.pop();
+  const titleHTML = words.length ? `${words.join(' ')} <em>${last}</em>` : `<em>${last}</em>`;
+  const sdgs = (domain.sdgs||[]).join(', ');
 
-  const sdgsDisplay = (domain.sdgs || []).join(', ');
-
-  const triedHTML = items.tried.map(it => `
-    <div class="panel-item">
+  const itemHTML = (arr, cls) => arr.map(it => `
+    <div class="panel-item${cls}">
       ${it.org_name ? `<div class="item-org">${esc(it.org_name)}</div>` : ''}
       ${esc(it.content)}
-      ${it.source_url ? `<a class="item-src" href="${esc(it.source_url)}" target="_blank">${esc(it.source_url.replace(/^https?:\/\//, ''))}</a>` : ''}
+      ${it.source_url ? `<a class="item-src" href="${esc(it.source_url)}" target="_blank">${esc(it.source_url.replace(/^https?:\/\//,''))}</a>` : ''}
     </div>`).join('');
 
-  const cautionHTML = items.caution.map(it => `
-    <div class="panel-item warn">${esc(it.content)}</div>`).join('');
-
-  const openHTML = items.open.map(it => `
-    <div class="panel-item q">${esc(it.content)}</div>`).join('');
-
-  // Format label with em on last word
-  const words = label.split(' ');
-  const lastWord = words.pop();
-  const titleHTML = words.length ? `${words.join(' ')} <em>${lastWord}</em>` : `<em>${lastWord}</em>`;
-
-  container.innerHTML = `
+  document.getElementById('domainPanels').innerHTML = `
     <div class="domain-panel active">
       <div class="panel-header">
         <div class="panel-name">${titleHTML}</div>
         <div class="panel-stats">
-          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">${domain.deployed_count || '—'}</div></div>
-          ${sdgsDisplay ? `<div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">${esc(sdgsDisplay)}</div></div>` : ''}
+          <div><div class="panel-stat-label">Deployed</div><div class="panel-stat-val">${domain.deployed_count||'—'}</div></div>
+          ${sdgs ? `<div><div class="panel-stat-label">SDGs</div><div class="panel-stat-val">${esc(sdgs)}</div></div>` : ''}
         </div>
       </div>
       <div class="panel-grid">
-        <div>
-          <div class="col-label tried">What's been tried</div>
-          ${triedHTML || '<div class="panel-item" style="color:var(--muted)">Loading…</div>'}
-        </div>
-        <div>
-          <div class="col-label caution">Honest cautions</div>
-          ${cautionHTML || '<div class="panel-item warn" style="color:var(--muted)">Loading…</div>'}
-        </div>
-        <div>
-          <div class="col-label open">Open questions</div>
-          ${openHTML || '<div class="panel-item q" style="color:var(--muted)">Loading…</div>'}
-        </div>
+        <div><div class="col-label tried">What's been tried</div>${itemHTML(items.tried,'')}</div>
+        <div><div class="col-label caution">Honest cautions</div>${itemHTML(items.caution,' warn')}</div>
+        <div><div class="col-label open">Open questions</div>${itemHTML(items.open,' q')}</div>
       </div>
       <div class="panel-footer"><a class="panel-link" href="/domains/${slug}">Full ${label.toLowerCase()} domain →</a></div>
     </div>`;
 }
 
-function toggleMore() {
-  extrasVisible = !extrasVisible;
-  document.querySelectorAll('.extra-tab').forEach(t => t.style.display = extrasVisible ? 'inline-flex' : 'none');
-  document.getElementById('moreBtnText').textContent = extrasVisible ? '− fewer domains' : '+ 4 more domains';
-}
-
-// ── RESOURCES ────────────────────────────────────────────────────────────────
-
+// ── RESOURCES ─────────────────────────────────────────────────────────────────
 async function loadResources() {
-  const { data } = await db.from('resources').select('*').eq('status', 'published').eq('featured', true).limit(6);
-  const container = document.getElementById('resourceCards');
-  if (!data || data.length === 0) { container.innerHTML = ''; return; }
-
-  container.innerHTML = data.map(r => {
-    const tagClass = (r.tags || []).some(t => ['Bias','Accountability','Failures'].includes(t)) ? 'tag tag-rust' : 'tag';
-    const tagsHTML = (r.tags || []).map(t => `<span class="${tagClass}">${esc(t)}</span>`).join('');
-    return `
-      <a class="resource-card" href="${esc(r.url || '#')}" target="_blank">
-        ${r.year ? `<div class="card-year">${r.year}</div>` : ''}
-        <div class="card-type">${esc(r.resource_type || '')}</div>
-        <div class="card-name">${esc(r.title)}</div>
-        <div class="card-desc">${esc(r.description || '')}</div>
-        <div class="card-tags">${tagsHTML}</div>
-      </a>`;
+  const { data } = await db.from('resources').select('*').eq('status','published').eq('featured',true).limit(6);
+  document.getElementById('resourceCards').innerHTML = (data||[]).map(r => {
+    const isRisk = (r.tags||[]).some(t => ['Bias','Accountability','Failures'].includes(t));
+    return `<a class="resource-card" href="${esc(r.url||'#')}" target="_blank">
+      ${r.year ? `<div class="card-year">${r.year}</div>` : ''}
+      <div class="card-type">${esc(r.resource_type||'')}</div>
+      <div class="card-name">${esc(r.title)}</div>
+      <div class="card-desc">${esc(r.description||'')}</div>
+      <div class="card-tags">${(r.tags||[]).map(t=>`<span class="tag${isRisk?' tag-rust':''}">${esc(t)}</span>`).join('')}</div>
+    </a>`;
   }).join('');
 
-  // Learn sources strip — non-featured resources
-  const { data: sources } = await db.from('resources').select('*').eq('status', 'published').eq('featured', false).limit(24);
-  renderLearnCards(sources || []);
-}
-
-function renderLearnCards(sources) {
-  const container = document.getElementById('learnCards');
+  const { data: sources } = await db.from('resources').select('*').eq('status','published').eq('featured',false).limit(24);
   const groups = [
-    { label: 'Primary sources & field intelligence', types: ['summit','grants','funder','institute','journal','platform','education','news'] },
-    { label: 'Philanthropy & giving', types: ['philanthropy','giving'] },
-    { label: 'Newsletters & substacks (active 2026)', types: ['newsletter','substack'] },
-    { label: 'Podcasts & communities', types: ['podcast','coalition','coalition','community'] },
+    { label:'Primary sources & field intelligence', types:['summit','grants','funder','institute','journal','platform','education','news','career'] },
+    { label:'Philanthropy & giving',                 types:['report','giving'] },
+    { label:'Newsletters & substacks (active 2026)', types:['newsletter','substack'] },
+    { label:'Podcasts & communities',                types:['podcast','coalition'] },
   ];
-
   let html = '';
-  groups.forEach(group => {
-    const groupItems = sources.filter(s => group.types.includes(s.resource_type));
-    if (groupItems.length === 0) return;
-    html += `<div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); padding:6px 0; border-bottom:1px solid var(--border); grid-column:1/-1; margin-top:8px;">${esc(group.label)}</div>`;
-    html += groupItems.map(s => `
-      <a class="learn-card" href="${esc(s.url || '#')}" target="_blank">
-        <div class="learn-medium">${esc(s.resource_type || '')}</div>
-        <div class="learn-name">${esc(s.title)}</div>
-      </a>`).join('');
+  groups.forEach(g => {
+    const items = (sources||[]).filter(s => g.types.includes(s.resource_type));
+    if (!items.length) return;
+    html += `<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);padding:6px 0;border-bottom:1px solid var(--border);grid-column:1/-1;margin-top:8px;">${esc(g.label)}</div>`;
+    html += items.map(s => `<a class="learn-card" href="${esc(s.url||'#')}" target="_blank"><div class="learn-medium">${esc(s.resource_type||'')}</div><div class="learn-name">${esc(s.title)}</div></a>`).join('');
   });
-  container.innerHTML = html;
+  document.getElementById('learnCards').innerHTML = html;
 }
 
-// ── ECOSYSTEM ────────────────────────────────────────────────────────────────
-
+// ── ECOSYSTEM ─────────────────────────────────────────────────────────────────
 async function loadEcosystem() {
-  const { data } = await db.from('ecosystem').select('*').eq('status', 'published').order('ecosystem_category');
-  const container = document.getElementById('ecosystemSection');
-  if (!data || data.length === 0) return;
-
-  const grouped = {};
-  data.forEach(e => {
-    if (!grouped[e.ecosystem_category]) grouped[e.ecosystem_category] = [];
-    grouped[e.ecosystem_category].push(e);
+  const { data } = await db.from('ecosystem').select('*').eq('status','published').order('ecosystem_category');
+  const CAT_LABELS = { funder:'Funders', convener:'Conveners & Field-builders', 'field-builder':'Conveners & Field-builders', governance:'Governance & Ethics', vc:'Venture & Growth' };
+  const seen = new Set(); let html = '';
+  (data||[]).forEach(e => {
+    const label = CAT_LABELS[e.ecosystem_category] || e.ecosystem_category;
+    if (!seen.has(label)) {
+      seen.add(label);
+      const group = data.filter(x => CAT_LABELS[x.ecosystem_category] === label);
+      html += `<div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">${esc(label)}</div>
+        <div class="card-grid-4" style="margin-bottom:24px;">${group.map(x=>`
+          <div class="ecosystem-card">
+            <div class="eco-role">${esc(x.ecosystem_category||'')}</div>
+            <div class="eco-name">${esc(x.name)}</div>
+            <div class="eco-desc">${esc(x.description||'')}</div>
+            ${x.url?`<a class="eco-link" href="${esc(x.url)}" target="_blank">${esc(x.url.replace(/^https?:\/\//,''))} →</a>`:''}
+          </div>`).join('')}</div>`;
+    }
   });
-
-  const categoryLabels = { funder: 'Funders', convener: 'Conveners & Field-builders', 'field-builder': 'Conveners & Field-builders', governance: 'Governance & Ethics', vc: 'Venture & Growth' };
-  const seen = new Set();
-  let html = '';
-
-  Object.entries(grouped).forEach(([cat, items]) => {
-    const label = categoryLabels[cat] || cat;
-    if (seen.has(label)) return;
-    seen.add(label);
-    const allItems = data.filter(e => categoryLabels[e.ecosystem_category] === label);
-    html += `<div style="font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--teal); margin-bottom:14px;">${esc(label)}</div>`;
-    html += `<div class="card-grid-4" style="margin-bottom:24px;">`;
-    html += allItems.map(e => `
-      <div class="ecosystem-card">
-        <div class="eco-role">${esc(e.ecosystem_category || '')}</div>
-        <div class="eco-name">${esc(e.name)}</div>
-        <div class="eco-desc">${esc(e.description || '')}</div>
-        ${e.url ? `<a class="eco-link" href="${esc(e.url)}" target="_blank">${esc(e.url.replace(/^https?:\/\//, ''))} →</a>` : ''}
-      </div>`).join('');
-    html += '</div>';
-  });
-
-  container.innerHTML = html;
+  document.getElementById('ecosystemSection').innerHTML = html;
 }
 
-// ── EVENTS ───────────────────────────────────────────────────────────────────
-
+// ── EVENTS ────────────────────────────────────────────────────────────────────
 async function loadEvents() {
   const today = new Date().toISOString().split('T')[0];
-  const { data } = await db.from('events').select('*').eq('status', 'published').or(`event_date.gte.${today},event_date.is.null`).order('event_date', { ascending: true, nullsFirst: false });
-  const container = document.getElementById('eventsList');
-  if (!data || data.length === 0) return;
-
-  container.innerHTML = data.map(ev => {
-    let dayDisplay = '🔔';
-    let monthDisplay = 'Ongoing';
+  const { data } = await db.from('events').select('*').eq('status','published').or(`event_date.gte.${today},event_date.is.null`).order('event_date',{ascending:true,nullsFirst:false});
+  document.getElementById('eventsList').innerHTML = (data||[]).map(ev => {
+    let day='🔔', month='Ongoing';
     if (ev.event_date) {
-      const d = new Date(ev.event_date + 'T00:00:00');
-      const dayEnd = ev.event_date_end ? `–${new Date(ev.event_date_end + 'T00:00:00').getDate()}` : '';
-      dayDisplay = d.getDate() + dayEnd;
-      monthDisplay = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      const d = new Date(ev.event_date+'T00:00:00');
+      const end = ev.event_date_end ? `–${new Date(ev.event_date_end+'T00:00:00').getDate()}` : '';
+      day = d.getDate()+end; month = d.toLocaleString('en-US',{month:'short'}).toUpperCase();
     }
-    const nycClass = ev.nyc ? 'event-loc nyc' : 'event-loc';
-    const locLabel = ev.nyc ? `NYC ★` : (ev.location || '');
-    return `
-      <div class="event-row">
-        <div class="event-date-col">
-          <div class="event-day">${dayDisplay}</div>
-          <div class="event-month">${monthDisplay}</div>
-        </div>
-        <div>
-          <div class="event-name">${esc(ev.name)}</div>
-          <div class="event-info">${esc(ev.description || '')}</div>
-        </div>
-        <div class="${nycClass}">${esc(locLabel)}</div>
-      </div>`;
+    const tag = `<div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc?'NYC ★':esc(ev.location||'')}</div>`;
+    const inner = `<div class="event-date-col"><div class="event-day">${day}</div><div class="event-month">${month}</div></div>
+      <div><div class="event-name">${esc(ev.name)}</div><div class="event-info">${esc(ev.description||'')}</div></div>${tag}`;
+    return ev.url
+      ? `<a class="event-row" href="${esc(ev.url)}" target="_blank">${inner}</a>`
+      : `<div class="event-row">${inner}</div>`;
   }).join('');
 }
 
-// ── UTIL ─────────────────────────────────────────────────────────────────────
-
-function esc(str) {
-  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── INTERSECTION OBSERVER ────────────────────────────────────────────────────
-
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.07 });
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+const io = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.07 });
 document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
 
-// ── BOOT ─────────────────────────────────────────────────────────────────────
-
-loadDomains();
-loadResources();
-loadEcosystem();
-loadEvents();
+loadDomains(); loadResources(); loadEcosystem(); loadEvents();
 </script>
 </body>
 </html>

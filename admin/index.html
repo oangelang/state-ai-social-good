@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — AI for Social Good</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1a1a; --slate: #4a5568; --muted: #9ca3af; --teal: #1a6b5e;
+  --teal-light: #e8f4f1; --gold: #c8922a; --border: #e5e7eb;
+  --warm-white: #fafaf8; --bg: #f5f4f0; --red: #c0392b; --green: #1a6b5e;
+}
+body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+/* Login gate */
+#loginGate {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+}
+.login-box {
+  background: white; border: 1px solid var(--border); border-radius: 4px;
+  padding: 40px 48px; max-width: 380px; width: 100%;
+}
+.login-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 300; margin-bottom: 6px; }
+.login-title em { font-style: italic; color: var(--teal); }
+.login-sub { font-size: 11px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.login-box input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 3px;
+  font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 12px;
+  background: var(--warm-white);
+}
+.login-box input:focus { outline: none; border-color: var(--teal); }
+.login-btn {
+  width: 100%; padding: 10px; background: var(--teal); color: white;
+  border: none; border-radius: 3px; font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em; cursor: pointer;
+}
+.login-btn:hover { background: #145a4f; }
+.login-err { font-size: 11px; color: var(--red); margin-top: 8px; display: none; }
+
+/* Admin shell */
+#adminShell { display: none; }
+.admin-nav {
+  background: var(--ink); color: white; padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-nav-logo { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 300; color: white; }
+.admin-nav-logo em { font-style: italic; color: #7fc5bb; }
+.admin-nav-right { display: flex; align-items: center; gap: 16px; }
+.admin-nav-right a { color: #9ca3af; font-size: 11px; text-decoration: none; }
+.admin-nav-right a:hover { color: white; }
+.logout-btn {
+  background: none; border: 1px solid #4a5568; color: #9ca3af;
+  padding: 5px 12px; border-radius: 3px; font-size: 10px; letter-spacing: 0.08em;
+  cursor: pointer; font-family: 'DM Mono', monospace;
+}
+.logout-btn:hover { border-color: #9ca3af; color: white; }
+
+.admin-body { max-width: 1100px; margin: 0 auto; padding: 40px 32px; }
+
+.admin-tabs {
+  display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.tab-btn {
+  padding: 8px 16px; border: none; background: none; font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em; color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+.tab-btn:hover:not(.active) { color: var(--slate); }
+.tab-count {
+  display: inline-block; background: var(--gold); color: white;
+  font-size: 9px; border-radius: 8px; padding: 1px 6px; margin-left: 5px; vertical-align: middle;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Pending rows */
+.pending-row {
+  background: white; border: 1px solid var(--border); border-radius: 3px;
+  padding: 18px 20px; margin-bottom: 10px; display: grid;
+  grid-template-columns: 1fr auto; gap: 16px; align-items: start;
+}
+.pending-row:last-child { margin-bottom: 0; }
+.pending-meta { font-size: 10px; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.08em; }
+.pending-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 300; margin-bottom: 4px; }
+.pending-detail { font-size: 11px; color: var(--slate); line-height: 1.6; }
+.pending-detail a { color: var(--teal); }
+.pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.action-btn {
+  padding: 6px 14px; border-radius: 3px; font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.08em; cursor: pointer; border: 1px solid;
+}
+.btn-approve { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+.btn-approve:hover { background: var(--teal); color: white; }
+.btn-reject { background: #fef2f2; color: var(--red); border-color: #fca5a5; }
+.btn-reject:hover { background: var(--red); color: white; }
+.btn-approve:disabled, .btn-reject:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state { color: var(--muted); font-size: 12px; padding: 24px 0; }
+.loading-state { color: var(--muted); font-size: 12px; padding: 24px 0; }
+
+/* Submissions table */
+.submission-card {
+  background: white; border: 1px solid var(--border); border-radius: 3px;
+  padding: 18px 20px; margin-bottom: 10px;
+}
+.sub-type {
+  display: inline-block; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  background: var(--teal-light); color: var(--teal); padding: 2px 8px; border-radius: 10px; margin-bottom: 8px;
+}
+.sub-data { font-size: 11px; color: var(--slate); line-height: 1.8; }
+.sub-data strong { color: var(--ink); font-weight: 500; }
+.sub-footer { font-size: 10px; color: var(--muted); margin-top: 10px; display: flex; gap: 16px; align-items: center; }
+
+/* Signups table */
+.signup-row {
+  display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;
+  padding: 12px 16px; background: white; border: 1px solid var(--border);
+  border-radius: 3px; margin-bottom: 6px; font-size: 12px;
+}
+.signup-name { color: var(--ink); }
+.signup-email { color: var(--teal); }
+.signup-date { font-size: 10px; color: var(--muted); }
+
+/* Stats bar */
+.stats-bar {
+  display: flex; gap: 24px; margin-bottom: 32px; padding: 18px 24px;
+  background: white; border: 1px solid var(--border); border-radius: 3px;
+}
+.stat-item { text-align: center; }
+.stat-n { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 300; color: var(--ink); line-height: 1; }
+.stat-n em { font-style: italic; color: var(--teal); }
+.stat-label { font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
+.stat-divider { width: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="loginGate">
+  <div class="login-box">
+    <div class="login-title">Admin <em>access</em></div>
+    <div class="login-sub">Enter your Supabase service key to continue. Nothing is stored in the browser beyond this session.</div>
+    <input type="password" id="keyInput" placeholder="sb_secret_…" autocomplete="off">
+    <button class="login-btn" onclick="doLogin()">Enter →</button>
+    <div class="login-err" id="loginErr">Invalid key — check and try again.</div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div id="adminShell">
+  <div class="admin-nav">
+    <div class="admin-nav-logo">AI × Social Good <em>admin</em></div>
+    <div class="admin-nav-right">
+      <a href="/">← Public site</a>
+      <button class="logout-btn" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-item"><div class="stat-n" id="statPendingOrgs">—</div><div class="stat-label">Pending orgs</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-n" id="statPendingEvents">—</div><div class="stat-label">Pending events</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-n" id="statPendingResources">—</div><div class="stat-label">Pending resources</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-n" id="statSubmissions">—</div><div class="stat-label">Submissions</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-n" id="statSignups">—</div><div class="stat-label">Hub signups</div></div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="orgs">Orgs <span class="tab-count" id="cntOrgs">0</span></button>
+      <button class="tab-btn" data-tab="events">Events <span class="tab-count" id="cntEvents">0</span></button>
+      <button class="tab-btn" data-tab="resources">Resources <span class="tab-count" id="cntResources">0</span></button>
+      <button class="tab-btn" data-tab="news">News <span class="tab-count" id="cntNews">0</span></button>
+      <button class="tab-btn" data-tab="submissions">Submissions <span class="tab-count" id="cntSubmissions">0</span></button>
+      <button class="tab-btn" data-tab="signups">Hub signups <span class="tab-count" id="cntSignups">0</span></button>
+    </div>
+
+    <div id="tab-orgs" class="tab-panel active">
+      <div class="loading-state">Loading…</div>
+    </div>
+    <div id="tab-events" class="tab-panel">
+      <div class="loading-state">Loading…</div>
+    </div>
+    <div id="tab-resources" class="tab-panel">
+      <div class="loading-state">Loading…</div>
+    </div>
+    <div id="tab-news" class="tab-panel">
+      <div class="loading-state">Loading…</div>
+    </div>
+    <div id="tab-submissions" class="tab-panel">
+      <div class="loading-state">Loading…</div>
+    </div>
+    <div id="tab-signups" class="tab-panel">
+      <div class="loading-state">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
+let SERVICE_KEY = '';
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function headers() {
+  return {
+    'apikey': SERVICE_KEY,
+    'Authorization': `Bearer ${SERVICE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+  };
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, { headers: headers(), ...opts });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function doLogin() {
+  const key = document.getElementById('keyInput').value.trim();
+  if (!key.startsWith('sb_secret_')) {
+    showLoginErr('Key must start with sb_secret_');
+    return;
+  }
+  SERVICE_KEY = key;
+  try {
+    // Validate by fetching a single row
+    await apiFetch('/organizations?select=id&limit=1');
+    sessionStorage.setItem('admin_key', key);
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('adminShell').style.display = 'block';
+    loadAll();
+  } catch {
+    SERVICE_KEY = '';
+    showLoginErr('Invalid key — check and try again.');
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function doLogout() {
+  sessionStorage.removeItem('admin_key');
+  location.reload();
+}
+
+document.getElementById('keyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function fmtDate(s) {
+  if (!s) return '—';
+  return new Date(s).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+// ---- LOAD ALL DATA ----
+async function loadAll() {
+  const [orgs, events, resources, news, submissions, signups] = await Promise.allSettled([
+    apiFetch('/organizations?select=*&status=eq.pending&order=created_at.asc'),
+    apiFetch('/events?select=*&status=eq.pending&order=created_at.asc'),
+    apiFetch('/resources?select=*&status=eq.pending&order=created_at.asc'),
+    apiFetch('/news?select=*&status=eq.pending&order=created_at.asc'),
+    apiFetch('/submissions?select=*&order=created_at.desc'),
+    apiFetch('/signups?select=*&order=created_at.desc'),
+  ]);
+
+  const get = r => r.status === 'fulfilled' ? r.value : [];
+
+  renderOrgs(get(orgs));
+  renderEvents(get(events));
+  renderResources(get(resources));
+  renderNews(get(news));
+  renderSubmissions(get(submissions));
+  renderSignups(get(signups));
+
+  // Stats
+  document.getElementById('statPendingOrgs').textContent = get(orgs).length;
+  document.getElementById('statPendingEvents').textContent = get(events).length;
+  document.getElementById('statPendingResources').textContent = get(resources).length;
+  document.getElementById('statSubmissions').textContent = get(submissions).length;
+  document.getElementById('statSignups').textContent = get(signups).length;
+
+  setBadge('cntOrgs', get(orgs).length);
+  setBadge('cntEvents', get(events).length);
+  setBadge('cntResources', get(resources).length);
+  setBadge('cntNews', get(news).length);
+  setBadge('cntSubmissions', get(submissions).length);
+  setBadge('cntSignups', get(signups).length);
+}
+
+function setBadge(id, n) {
+  const el = document.getElementById(id);
+  el.textContent = n;
+  el.style.display = n > 0 ? '' : 'none';
+}
+
+// ---- APPROVE / REJECT ----
+async function setStatus(table, id, status, btnEl) {
+  const btns = btnEl.closest('.pending-actions').querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { ...headers(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status }),
+    });
+    btnEl.closest('.pending-row, .submission-card').style.opacity = '0.4';
+    btnEl.closest('.pending-row, .submission-card').style.pointerEvents = 'none';
+  } catch (e) {
+    btns.forEach(b => b.disabled = false);
+    alert('Error: ' + e.message);
+  }
+}
+
+function actionBtns(table, id) {
+  return `<div class="pending-actions">
+    <button class="action-btn btn-approve" onclick="setStatus('${table}','${id}','published',this)">Approve</button>
+    <button class="action-btn btn-reject" onclick="setStatus('${table}','${id}','rejected',this)">Reject</button>
+  </div>`;
+}
+
+// ---- RENDERERS ----
+function renderOrgs(rows) {
+  const el = document.getElementById('tab-orgs');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No pending organizations.</div>'; return; }
+  el.innerHTML = rows.map(r => `
+    <div class="pending-row">
+      <div>
+        <div class="pending-meta">${esc(r.org_type||'org')} · submitted ${fmtDate(r.created_at)}</div>
+        <div class="pending-title">${esc(r.name)}</div>
+        <div class="pending-detail">
+          ${r.description ? `<div>${esc(r.description)}</div>` : ''}
+          ${r.domain ? `<div style="margin-top:4px;">Domain: <strong>${esc(r.domain)}</strong></div>` : ''}
+          ${r.location ? `<div>Location: ${esc(r.location)}</div>` : ''}
+          ${r.url ? `<div><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a></div>` : ''}
+        </div>
+      </div>
+      ${actionBtns('organizations', r.id)}
+    </div>`).join('');
+}
+
+function renderEvents(rows) {
+  const el = document.getElementById('tab-events');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No pending events.</div>'; return; }
+  el.innerHTML = rows.map(r => `
+    <div class="pending-row">
+      <div>
+        <div class="pending-meta">${esc(r.format||'event')} · ${fmtDate(r.event_date)} · submitted ${fmtDate(r.created_at)}</div>
+        <div class="pending-title">${esc(r.name)}</div>
+        <div class="pending-detail">
+          ${r.description ? `<div>${esc(r.description)}</div>` : ''}
+          ${r.location ? `<div>Location: ${esc(r.location)}</div>` : ''}
+          ${r.url ? `<div><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a></div>` : ''}
+        </div>
+      </div>
+      ${actionBtns('events', r.id)}
+    </div>`).join('');
+}
+
+function renderResources(rows) {
+  const el = document.getElementById('tab-resources');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No pending resources.</div>'; return; }
+  el.innerHTML = rows.map(r => `
+    <div class="pending-row">
+      <div>
+        <div class="pending-meta">${esc(r.resource_type||'resource')} · submitted ${fmtDate(r.created_at)}</div>
+        <div class="pending-title">${esc(r.title)}</div>
+        <div class="pending-detail">
+          ${r.description ? `<div>${esc(r.description)}</div>` : ''}
+          ${r.author ? `<div>Author: ${esc(r.author)}</div>` : ''}
+          ${r.url ? `<div><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a></div>` : ''}
+        </div>
+      </div>
+      ${actionBtns('resources', r.id)}
+    </div>`).join('');
+}
+
+function renderNews(rows) {
+  const el = document.getElementById('tab-news');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No pending news items.</div>'; return; }
+  el.innerHTML = rows.map(r => `
+    <div class="pending-row">
+      <div>
+        <div class="pending-meta">${esc(r.news_type||'news')} · ${fmtDate(r.published_date)} · submitted ${fmtDate(r.created_at)}</div>
+        <div class="pending-title">${esc(r.headline)}</div>
+        <div class="pending-detail">
+          ${r.summary ? `<div>${esc(r.summary)}</div>` : ''}
+          ${r.source ? `<div>Source: ${esc(r.source)}</div>` : ''}
+          ${r.url ? `<div><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a></div>` : ''}
+        </div>
+      </div>
+      ${actionBtns('news', r.id)}
+    </div>`).join('');
+}
+
+function renderSubmissions(rows) {
+  const el = document.getElementById('tab-submissions');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No community submissions yet.</div>'; return; }
+  el.innerHTML = rows.map(r => {
+    const data = r.submitted_data || {};
+    const dataLines = Object.entries(data)
+      .filter(([,v]) => v)
+      .map(([k,v]) => `<strong>${esc(k)}:</strong> ${esc(String(v))}`)
+      .join('<br>');
+    return `<div class="submission-card">
+      <span class="sub-type">${esc(r.submission_type||'submission')}</span>
+      <div class="sub-data">${dataLines || '<em>No data</em>'}</div>
+      <div class="sub-footer">
+        <span>${r.submitter_email ? `From: ${esc(r.submitter_email)}` : 'Anonymous'}</span>
+        <span>${fmtDate(r.created_at)}</span>
+        <span style="color:${r.status==='reviewed'?'var(--teal)':'var(--muted)'};">${esc(r.status||'pending')}</span>
+        <button class="action-btn btn-approve" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','reviewed',this)">Mark reviewed</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSignups(rows) {
+  const el = document.getElementById('tab-signups');
+  if (!rows.length) { el.innerHTML = '<div class="empty-state">No hub signups yet.</div>'; return; }
+  el.innerHTML = `<div style="margin-bottom:12px; font-size:11px; color:var(--muted);">${rows.length} total signups</div>`
+    + rows.map(r => `
+    <div class="signup-row">
+      <div class="signup-name">${esc(r.name||'—')}</div>
+      <div class="signup-email">${esc(r.email)}</div>
+      <div class="signup-date">${fmtDate(r.created_at)}</div>
+    </div>`).join('');
+}
+
+// Auto-login if key in sessionStorage
+const savedKey = sessionStorage.getItem('admin_key');
+if (savedKey) {
+  document.getElementById('keyInput').value = savedKey;
+  doLogin();
+}
+</script>
+</body>
+</html>
