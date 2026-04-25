@@ -196,6 +196,62 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; }
+
+  nav { padding: 12px 16px; }
+  .nav-links { display: none; }
+  .nav-cta { font-size: 9px; padding: 5px 10px; }
+
+  .hero { padding: 72px 16px 36px; }
+  .hero-desc { font-size: 13px; margin-bottom: 36px; }
+
+  .domain-panel { padding: 18px 16px; }
+  .panel-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .panel-stats { gap: 16px; }
+  .panel-grid { grid-template-columns: 1fr; gap: 14px; }
+
+  .section-wrap { padding: 32px 16px; overflow-x: hidden; }
+  .section-head { flex-direction: column; gap: 8px; align-items: flex-start; }
+
+  .framework-box { padding: 18px 16px; }
+  .fw-four {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    gap: 10px; padding-bottom: 4px;
+  }
+  .fw-four::-webkit-scrollbar { display: none; }
+  .fw-four > * { flex: 0 0 72vw; scroll-snap-align: start; }
+
+  .card-grid-3, .card-grid-4 {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    gap: 12px; padding-bottom: 4px;
+  }
+  .card-grid-3::-webkit-scrollbar, .card-grid-4::-webkit-scrollbar { display: none; }
+  .card-grid-3 > * { flex: 0 0 78vw; scroll-snap-align: start; }
+  .card-grid-4 > * { flex: 0 0 72vw; scroll-snap-align: start; }
+
+  .risks-grid {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    gap: 12px; padding-bottom: 4px;
+  }
+  .risks-grid::-webkit-scrollbar { display: none; }
+  .risks-grid > * { flex: 0 0 82vw; scroll-snap-align: start; }
+
+  .nyc-band { padding: 32px 16px; }
+  .nyc-inner { grid-template-columns: 1fr; gap: 20px; }
+  .nyc-title { font-size: 22px; }
+
+  .event-row { grid-template-columns: 48px 1fr; gap: 12px; padding: 12px 14px; }
+  .event-date-col { padding-right: 12px; }
+  .event-loc { display: none; }
+
+  footer { padding: 20px 16px; flex-direction: column; gap: 8px; text-align: center; }
+}
 </style>
 </head>
 <body>
