@@ -711,7 +711,7 @@ async function loadEcosystem() {
     const label = CAT_LABELS[e.ecosystem_category] || e.ecosystem_category;
     if (!seen.has(label)) {
       seen.add(label);
-      const group = data.filter(x => CAT_LABELS[x.ecosystem_category] === label);
+      const group = data.filter(x => CAT_LABELS[x.ecosystem_category] === label).slice(0, 3);
       html += `<div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">${esc(label)}</div>
         <div class="card-grid-4" style="margin-bottom:24px;">${group.map(x=>`
           <div class="ecosystem-card">

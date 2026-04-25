@@ -43,10 +43,6 @@
   <div id="ecosystemBody" class="section-wrap">
     <div style="color:var(--muted); font-size:12px;">Loading…</div>
   </div>
-
-  <div class="section-wrap" id="expandWrap" style="display:none; padding-top:0; padding-bottom:52px; text-align:center;">
-    <button id="expandBtn" onclick="expandAll()" style="background:none;border:1px solid var(--teal);color:var(--teal);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;cursor:pointer;border-radius:2px;">View full ecosystem map →</button>
-  </div>
 </div>
 
 <footer>
@@ -70,8 +66,6 @@ const CAT_ORDER = ['funder', 'convener', 'field-builder', 'governance', 'vc'];
 
 let allEntries = [];
 let activeFilter = 'all';
-let expanded = false;
-const PREVIEW_PER_GROUP = 3;
 
 async function init() {
   const { data } = await db.from('ecosystem').select('*').eq('status','published');
@@ -80,7 +74,6 @@ async function init() {
   document.querySelectorAll('#categoryFilters .filter-btn').forEach(btn => {
     btn.onclick = () => {
       activeFilter = btn.dataset.cat;
-      expanded = false;
       document.querySelectorAll('#categoryFilters .filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       render();
@@ -90,33 +83,23 @@ async function init() {
   render();
 }
 
-function expandAll() {
-  expanded = true;
-  document.getElementById('expandWrap').style.display = 'none';
-  render();
-}
-
 function render() {
   const filtered = activeFilter === 'all' ? allEntries : allEntries.filter(e => e.ecosystem_category === activeFilter);
   const body = document.getElementById('ecosystemBody');
 
   if (filtered.length === 0) {
     body.innerHTML = '<div class="empty">Nothing in this category yet.</div>';
-    document.getElementById('expandWrap').style.display = 'none';
     return;
   }
 
   if (activeFilter !== 'all') {
-    const shown = expanded ? filtered : filtered.slice(0, PREVIEW_PER_GROUP);
-    body.innerHTML = `<div class="card-grid-4">${shown.map(cardHTML).join('')}</div>`;
-    document.getElementById('expandWrap').style.display = (!expanded && filtered.length > PREVIEW_PER_GROUP) ? 'block' : 'none';
+    body.innerHTML = `<div class="card-grid-4">${filtered.map(cardHTML).join('')}</div>`;
     return;
   }
 
-  // Grouped view — show PREVIEW_PER_GROUP per group unless expanded
+  // Grouped view
   const seen = new Set();
   let html = '';
-  let hasMore = false;
   CAT_ORDER.forEach(cat => {
     const label = CAT_LABELS[cat];
     if (seen.has(label)) return;
@@ -124,16 +107,13 @@ function render() {
     const cats = cat === 'convener' ? ['convener','field-builder'] : [cat];
     const group = allEntries.filter(e => cats.includes(e.ecosystem_category));
     if (group.length === 0) return;
-    const shown = expanded ? group : group.slice(0, PREVIEW_PER_GROUP);
-    if (!expanded && group.length > PREVIEW_PER_GROUP) hasMore = true;
     html += `
       <div style="margin-bottom:36px;">
         <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">${esc(label)}</div>
-        <div class="card-grid-4">${shown.map(cardHTML).join('')}</div>
+        <div class="card-grid-4">${group.map(cardHTML).join('')}</div>
       </div>`;
   });
   body.innerHTML = html;
-  document.getElementById('expandWrap').style.display = hasMore ? 'block' : 'none';
 }
 
 function cardHTML(e) {
