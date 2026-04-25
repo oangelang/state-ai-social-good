@@ -178,3 +178,34 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 /* ── ANIMATIONS ── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { opacity: 0; animation: fadeUp 0.5s ease forwards; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  nav { padding: 14px 20px; }
+  .nav-links { display: none; }
+  .nav-cta { font-size: 9px; padding: 5px 10px; }
+
+  .page-header { padding: 32px 20px 28px; }
+  .section-wrap { padding: 32px 20px; }
+
+  .card-grid-2 { grid-template-columns: 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr; }
+  .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+  .panel-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  .risks-grid { grid-template-columns: 1fr; }
+
+  .event-row { grid-template-columns: 56px 1fr; gap: 12px; }
+  .event-loc { display: none; }
+
+  .stat-row { flex-wrap: wrap; gap: 20px; }
+
+  footer { flex-direction: column; gap: 10px; text-align: center; padding: 24px 20px; }
+
+  .section-head { flex-direction: column; gap: 8px; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .card-grid-4 { grid-template-columns: 1fr; }
+}
