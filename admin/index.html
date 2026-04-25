@@ -209,38 +209,40 @@ let SERVICE_KEY = '';
 
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function headers() {
-  return {
+function headers(write = false) {
+  const h = {
     'apikey': SERVICE_KEY,
     'Authorization': `Bearer ${SERVICE_KEY}`,
     'Content-Type': 'application/json',
-    'Prefer': 'return=representation',
   };
+  if (write) h['Prefer'] = 'return=representation';
+  return h;
 }
 
 async function apiFetch(path, opts = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, { headers: headers(), ...opts });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const isWrite = opts.method && opts.method !== 'GET';
+  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, { headers: headers(isWrite), ...opts });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
 }
 
 async function doLogin() {
   const key = document.getElementById('keyInput').value.trim();
-  if (!key.startsWith('sb_secret_')) {
-    showLoginErr('Key must start with sb_secret_');
-    return;
-  }
+  if (!key) { showLoginErr('Enter your Supabase service role key.'); return; }
   SERVICE_KEY = key;
   try {
-    // Validate by fetching a single row
     await apiFetch('/organizations?select=id&limit=1');
     sessionStorage.setItem('admin_key', key);
     document.getElementById('loginGate').style.display = 'none';
     document.getElementById('adminShell').style.display = 'block';
     loadAll();
-  } catch {
+  } catch (err) {
     SERVICE_KEY = '';
-    showLoginErr('Invalid key — check and try again.');
+    showLoginErr('Access denied: ' + err.message);
   }
 }
 

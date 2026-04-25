@@ -136,11 +136,19 @@ async function init() {
     </div>
     <div>
       <div class="col-label caution">Honest cautions</div>
-      ${caution.map(i => `<div class="panel-item warn">${esc(i.content)}</div>`).join('') || '<div class="empty">None yet</div>'}
+      ${caution.map(i => `<div class="panel-item warn">
+        ${i.org_name ? `<div class="item-org">${esc(i.org_name)}</div>` : ''}
+        ${esc(i.content)}
+        ${i.source_url ? `<a class="item-src" href="${esc(i.source_url)}" target="_blank">${esc(i.source_url.replace(/^https?:\/\//,''))}</a>` : ''}
+      </div>`).join('') || '<div class="empty">None yet</div>'}
     </div>
     <div>
       <div class="col-label open">Open questions</div>
-      ${open.map(i => `<div class="panel-item q">${esc(i.content)}</div>`).join('') || '<div class="empty">None yet</div>'}
+      ${open.map(i => `<div class="panel-item q">
+        ${i.org_name ? `<div class="item-org">${esc(i.org_name)}</div>` : ''}
+        ${esc(i.content)}
+        ${i.source_url ? `<a class="item-src" href="${esc(i.source_url)}" target="_blank">${esc(i.source_url.replace(/^https?:\/\//,''))}</a>` : ''}
+      </div>`).join('') || '<div class="empty">None yet</div>'}
     </div>`;
 
   // Orgs
@@ -170,11 +178,13 @@ async function init() {
         day = d.getDate() + dayEnd;
         month = d.toLocaleString('en-US',{month:'short'}).toUpperCase();
       }
-      return `<div class="event-row">
+      const inner = `
         <div class="event-date-col"><div class="event-day">${day}</div><div class="event-month">${month}</div></div>
         <div><div class="event-name">${esc(ev.name)}</div><div class="event-meta">${esc(ev.description||'')}</div></div>
-        <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>
-      </div>`;
+        <div class="event-loc${ev.nyc?' nyc':''}">${ev.nyc ? 'NYC ★' : esc(ev.location||'')}</div>`;
+      return ev.url
+        ? `<a class="event-row" href="${esc(ev.url)}" target="_blank">${inner}</a>`
+        : `<div class="event-row">${inner}</div>`;
     }).join('');
   }
 }
