@@ -344,6 +344,79 @@ function actionBtns(table, id) {
   </div>`;
 }
 
+// ---- APPROVE SUBMISSION → publish to live table ----
+const SUBMISSION_TABLE_MAP = {
+  organization: 'organizations',
+  event:        'events',
+  resource:     'resources',
+  news:         'news',
+};
+
+function buildLiveRow(type, data) {
+  if (type === 'organization') return {
+    name:          data.name,
+    description:   data.description || null,
+    ai_use_case:   data.description || null,
+    source_url:    data.url || null,
+    domain_tags:   data.domain ? [data.domain.toLowerCase()] : [],
+    evidence_tier: data.evidence_tier || 'research',
+    status:        'published',
+  };
+  if (type === 'event') return {
+    name:        data.name,
+    description: data.description || null,
+    url:         data.url || null,
+    event_date:  data.event_date || null,
+    location:    data.location || null,
+    format:      data.format || null,
+    status:      'published',
+  };
+  if (type === 'resource') return {
+    title:         data.title,
+    description:   data.description || null,
+    url:           data.url || null,
+    resource_type: data.resource_type || null,
+    status:        'published',
+  };
+  if (type === 'news') return {
+    headline:       data.headline || data.title || data.name,
+    summary:        data.description || null,
+    url:            data.url || null,
+    source:         data.source || null,
+    status:         'published',
+  };
+  return null;
+}
+
+async function approveSubmission(id, type, data, btnEl) {
+  const btns = btnEl.closest('.sub-footer').querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+
+  const targetTable = SUBMISSION_TABLE_MAP[type];
+  const liveRow = targetTable ? buildLiveRow(type, data) : null;
+
+  try {
+    if (liveRow) {
+      await apiFetch(`/${targetTable}`, {
+        method: 'POST',
+        body: JSON.stringify(liveRow),
+      });
+    }
+    await apiFetch(`/submissions?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'approved' }),
+    });
+    const card = btnEl.closest('.submission-card');
+    card.style.opacity = '0.4';
+    card.style.pointerEvents = 'none';
+    card.querySelector('.sub-status').textContent = `approved → live on ${targetTable || 'site'}`;
+    card.querySelector('.sub-status').style.color = 'var(--teal)';
+  } catch (e) {
+    btns.forEach(b => b.disabled = false);
+    alert('Error: ' + e.message);
+  }
+}
+
 // ---- RENDERERS ----
 function renderOrgs(rows) {
   const el = document.getElementById('tab-orgs');
@@ -427,15 +500,17 @@ function renderSubmissions(rows) {
       .filter(([,v]) => v)
       .map(([k,v]) => `<strong>${esc(k)}:</strong> ${esc(String(v))}`)
       .join('<br>');
+    const dataAttr = esc(JSON.stringify(r.submitted_data || {}));
+    const targetTable = SUBMISSION_TABLE_MAP[r.submission_type] || 'site';
     return `<div class="submission-card">
       <span class="sub-type">${esc(r.submission_type||'submission')}</span>
       <div class="sub-data">${dataLines || '<em>No data</em>'}</div>
       <div class="sub-footer">
         <span>${r.submitter_email ? `From: ${esc(r.submitter_email)}` : 'Anonymous'}</span>
         <span>${fmtDate(r.created_at)}</span>
-        <span style="color:${r.status==='approved'?'var(--teal)':r.status==='rejected'?'var(--red)':'var(--muted)'};">${esc(r.status||'pending')}</span>
+        <span class="sub-status" style="color:${r.status==='approved'?'var(--teal)':r.status==='rejected'?'var(--red)':'var(--muted)'};">${esc(r.status||'pending')}</span>
         <div class="pending-actions" style="display:inline-flex;">
-          <button class="action-btn btn-approve" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','approved',this)">Approve</button>
+          <button class="action-btn btn-approve" style="padding:4px 10px;" onclick="approveSubmission('${r.id}','${esc(r.submission_type||'')}',${dataAttr},this)">Approve → ${esc(targetTable)}</button>
           <button class="action-btn btn-reject" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','rejected',this)">Deny</button>
         </div>
       </div>
