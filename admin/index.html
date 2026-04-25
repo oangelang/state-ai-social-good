@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — AI for Social Good</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -143,10 +144,11 @@ body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--in
 <div id="loginGate">
   <div class="login-box">
     <div class="login-title">Admin <em>access</em></div>
-    <div class="login-sub">Enter your Supabase service key to continue. Nothing is stored in the browser beyond this session.</div>
-    <input type="password" id="keyInput" placeholder="sb_secret_…" autocomplete="off">
-    <button class="login-btn" onclick="doLogin()">Enter →</button>
-    <div class="login-err" id="loginErr">Invalid key — check and try again.</div>
+    <div class="login-sub">Sign in with your admin account email and password.</div>
+    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Sign in →</button>
+    <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
@@ -205,23 +207,26 @@ body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--in
 
 <script>
 const SUPABASE_URL = 'https://xvdkurbfxsukyxnykssy.supabase.co';
-let SERVICE_KEY = '';
+const SUPABASE_ANON_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function headers(write = false) {
-  const h = {
-    'apikey': SERVICE_KEY,
-    'Authorization': `Bearer ${SERVICE_KEY}`,
-    'Content-Type': 'application/json',
-  };
-  if (write) h['Prefer'] = 'return=representation';
-  return h;
+async function getToken() {
+  const { data: { session } } = await db.auth.getSession();
+  return session?.access_token || SUPABASE_ANON_KEY;
 }
 
 async function apiFetch(path, opts = {}) {
+  const token = await getToken();
   const isWrite = opts.method && opts.method !== 'GET';
-  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, { headers: headers(isWrite), ...opts });
+  const h = {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+  if (isWrite) h['Prefer'] = 'return=minimal';
+  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, { headers: h, ...opts });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`${res.status}: ${text}`);
@@ -231,19 +236,17 @@ async function apiFetch(path, opts = {}) {
 }
 
 async function doLogin() {
-  const key = document.getElementById('keyInput').value.trim();
-  if (!key) { showLoginErr('Enter your Supabase service role key.'); return; }
-  SERVICE_KEY = key;
-  try {
-    await apiFetch('/organizations?select=id&limit=1');
-    sessionStorage.setItem('admin_key', key);
-    document.getElementById('loginGate').style.display = 'none';
-    document.getElementById('adminShell').style.display = 'block';
-    loadAll();
-  } catch (err) {
-    SERVICE_KEY = '';
-    showLoginErr('Access denied: ' + err.message);
-  }
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) { showLoginErr('Email and password are required.'); return; }
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email, password });
+  btn.textContent = 'Sign in →'; btn.disabled = false;
+  if (error) { showLoginErr(error.message); return; }
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('adminShell').style.display = 'block';
+  loadAll();
 }
 
 function showLoginErr(msg) {
@@ -252,12 +255,12 @@ function showLoginErr(msg) {
   el.style.display = 'block';
 }
 
-function doLogout() {
-  sessionStorage.removeItem('admin_key');
+async function doLogout() {
+  await db.auth.signOut();
   location.reload();
 }
 
-document.getElementById('keyInput').addEventListener('keydown', e => {
+document.getElementById('loginPassword').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLogin();
 });
 
@@ -319,12 +322,11 @@ function setBadge(id, n) {
 
 // ---- APPROVE / REJECT ----
 async function setStatus(table, id, status, btnEl) {
-  const btns = btnEl.closest('.pending-actions').querySelectorAll('button');
+  const btns = btnEl.closest('.pending-actions, .sub-footer').querySelectorAll('button');
   btns.forEach(b => b.disabled = true);
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    await apiFetch(`/${table}?id=eq.${id}`, {
       method: 'PATCH',
-      headers: { ...headers(), 'Prefer': 'return=minimal' },
       body: JSON.stringify({ status }),
     });
     btnEl.closest('.pending-row, .submission-card').style.opacity = '0.4';
@@ -450,12 +452,14 @@ function renderSignups(rows) {
     </div>`).join('');
 }
 
-// Auto-login if key in sessionStorage
-const savedKey = sessionStorage.getItem('admin_key');
-if (savedKey) {
-  document.getElementById('keyInput').value = savedKey;
-  doLogin();
-}
+// Auto-restore session if already signed in
+db.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('adminShell').style.display = 'block';
+    loadAll();
+  }
+});
 </script>
 </body>
 </html>
