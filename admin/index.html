@@ -286,7 +286,7 @@ async function loadAll() {
     apiFetch('/events?select=*&status=eq.pending&order=created_at.asc'),
     apiFetch('/resources?select=*&status=eq.pending&order=created_at.asc'),
     apiFetch('/news?select=*&status=eq.pending&order=created_at.asc'),
-    apiFetch('/submissions?select=*&order=created_at.desc'),
+    apiFetch('/submissions?select=*&status=eq.pending&order=created_at.desc'),
     apiFetch('/signups?select=*&order=created_at.desc'),
   ]);
 
