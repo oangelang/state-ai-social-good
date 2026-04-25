@@ -181,31 +181,71 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
-  nav { padding: 14px 20px; }
+  /* Prevent any element from blowing out page width */
+  html, body { overflow-x: hidden; max-width: 100vw; }
+
+  nav { padding: 14px 20px; gap: 12px; }
   .nav-links { display: none; }
-  .nav-cta { font-size: 9px; padding: 5px 10px; }
+  .nav-cta { font-size: 9px; padding: 5px 10px; white-space: nowrap; }
 
-  .page-header { padding: 32px 20px 28px; }
-  .section-wrap { padding: 32px 20px; }
+  .page-header { padding: 28px 20px 24px; }
+  .section-wrap { padding: 28px 20px; }
 
-  .card-grid-2 { grid-template-columns: 1fr; }
-  .card-grid-3 { grid-template-columns: 1fr; }
-  .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .section-head { flex-direction: column; gap: 6px; align-items: flex-start; }
 
-  .panel-grid { grid-template-columns: 1fr; gap: 12px; }
+  /* ── Horizontal carousel for card grids ── */
+  .card-grid-2,
+  .card-grid-3,
+  .card-grid-4 {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    /* bleed to section edges so first card aligns with text */
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
+  }
+  .card-grid-2::-webkit-scrollbar,
+  .card-grid-3::-webkit-scrollbar,
+  .card-grid-4::-webkit-scrollbar { display: none; }
 
-  .risks-grid { grid-template-columns: 1fr; }
+  /* Each card: peek at next one so it's obvious you can scroll */
+  .card-grid-2 > *  { flex: 0 0 calc(85vw - 40px); scroll-snap-align: start; }
+  .card-grid-3 > *  { flex: 0 0 calc(80vw - 40px); scroll-snap-align: start; }
+  .card-grid-4 > *  { flex: 0 0 calc(75vw - 40px); scroll-snap-align: start; }
 
-  .event-row { grid-template-columns: 56px 1fr; gap: 12px; }
+  /* ── Risks carousel ── */
+  .risks-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 4px;
+  }
+  .risks-grid::-webkit-scrollbar { display: none; }
+  .risks-grid > .risk-card { flex: 0 0 calc(85vw - 40px); scroll-snap-align: start; }
+
+  /* ── Domain panel: stack columns vertically ── */
+  .panel-grid { grid-template-columns: 1fr; gap: 20px; }
+
+  /* ── Events: tighten layout ── */
+  .event-row { grid-template-columns: 52px 1fr; gap: 14px; padding: 12px 14px; }
   .event-loc { display: none; }
 
+  /* ── Stats ── */
   .stat-row { flex-wrap: wrap; gap: 20px; }
+  .stat-val { font-size: 26px; }
 
-  footer { flex-direction: column; gap: 10px; text-align: center; padding: 24px 20px; }
-
-  .section-head { flex-direction: column; gap: 8px; align-items: flex-start; }
-}
-
-@media (max-width: 480px) {
-  .card-grid-4 { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px 20px; }
 }
