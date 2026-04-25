@@ -433,8 +433,11 @@ function renderSubmissions(rows) {
       <div class="sub-footer">
         <span>${r.submitter_email ? `From: ${esc(r.submitter_email)}` : 'Anonymous'}</span>
         <span>${fmtDate(r.created_at)}</span>
-        <span style="color:${r.status==='reviewed'?'var(--teal)':'var(--muted)'};">${esc(r.status||'pending')}</span>
-        <button class="action-btn btn-approve" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','reviewed',this)">Mark reviewed</button>
+        <span style="color:${r.status==='published'?'var(--teal)':r.status==='rejected'?'var(--red)':'var(--muted)'};">${esc(r.status||'pending')}</span>
+        <div class="pending-actions" style="display:inline-flex;">
+          <button class="action-btn btn-approve" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','published',this)">Publish</button>
+          <button class="action-btn btn-reject" style="padding:4px 10px;" onclick="setStatus('submissions','${r.id}','rejected',this)">Deny</button>
+        </div>
       </div>
     </div>`;
   }).join('');
