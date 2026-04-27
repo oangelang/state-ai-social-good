@@ -82,6 +82,190 @@
 
   <div class="divider" style="margin:0 40px;"></div>
 
+  <!-- FIELD GUIDE -->
+  <div class="section-wrap" style="padding-bottom:0;">
+    <div class="section-head">
+      <h2 class="section-title">The <em>field guide</em></h2>
+      <span class="section-meta">Problem → method</span>
+    </div>
+    <p style="font-size:12px;color:var(--slate);line-height:1.75;max-width:600px;margin-bottom:28px;">The question practitioners keep asking: <em>which kind of AI actually fits my problem?</em> Six problem shapes, the AI method that matches each, and real deployments from the field. Click any row to see examples.</p>
+
+    <style>
+      .fg-grid-head { display:grid; grid-template-columns:1fr 36px 1fr; padding:0 0 8px; border-bottom:1px solid var(--border); margin-bottom:10px; }
+      .fg-col { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+      .fg-col.right { text-align:right; }
+      .fg-row { display:grid; grid-template-columns:1fr 36px 1fr; align-items:stretch; margin:7px 0; cursor:pointer; border-radius:3px; border:1px solid var(--border); overflow:hidden; background:var(--warm-white); transition:border-color .18s; }
+      .fg-row:hover { border-color:var(--teal); }
+      .fg-row.fg-open { border-color:var(--ink); }
+      .fg-cell { padding:14px 16px; }
+      .fg-mid { display:flex; align-items:center; justify-content:center; background:var(--paper); border-left:1px solid var(--border); border-right:1px solid var(--border); flex-shrink:0; }
+      .fg-prob { font-family:'Fraunces',serif; font-size:14px; font-weight:300; color:var(--ink); margin:0 0 4px; line-height:1.4; }
+      .fg-prob-desc { font-size:11px; color:var(--slate); line-height:1.55; margin:0; }
+      .fg-method { font-family:'Fraunces',serif; font-size:14px; font-weight:300; text-align:right; margin:0 0 4px; line-height:1.4; }
+      .fg-method-desc { font-size:11px; color:var(--slate); line-height:1.55; margin:0; text-align:right; }
+      .fg-expand { display:none; grid-column:1/-1; border-top:1px solid var(--border); padding:14px 16px; background:var(--paper); }
+      .fg-row.fg-open .fg-expand { display:block; }
+      .fg-ex-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .fg-ex-card { background:var(--warm-white); border:1px solid var(--border); border-radius:3px; padding:12px 14px; }
+      .fg-ex-domain { font-size:9px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 5px; font-weight:500; }
+      .fg-ex-title { font-family:'Fraunces',serif; font-size:13px; font-weight:300; color:var(--ink); margin:0 0 4px; line-height:1.35; }
+      .fg-ex-desc { font-size:11px; color:var(--slate); line-height:1.55; margin:0; }
+      .fg-arr { width:13px; height:13px; flex-shrink:0; transition:transform .2s; }
+      .fg-row.fg-open .fg-arr { transform:rotate(90deg); }
+      /* row accent colors */
+      .fg-r1 .fg-method { color:#185FA5; } .fg-r1 .fg-ex-domain { color:#185FA5; }
+      .fg-r2 .fg-method { color:#3C3489; } .fg-r2 .fg-ex-domain { color:#3C3489; }
+      .fg-r3 .fg-method { color:var(--teal); } .fg-r3 .fg-ex-domain { color:var(--teal); }
+      .fg-r4 .fg-method { color:var(--gold); } .fg-r4 .fg-ex-domain { color:var(--gold); }
+      .fg-r5 .fg-method { color:var(--rust); } .fg-r5 .fg-ex-domain { color:var(--rust); }
+      .fg-r6 .fg-method { color:#854F0B; } .fg-r6 .fg-ex-domain { color:#854F0B; }
+      @media(max-width:768px){
+        .fg-grid-head { display:none; }
+        .fg-row { grid-template-columns:1fr 28px; }
+        .fg-cell:last-of-type:not(.fg-mid) { display:none; }
+        .fg-mid { border-right:none; }
+        .fg-ex-grid { grid-template-columns:1fr; }
+        .fg-expand { padding:12px; }
+      }
+    </style>
+
+    <div class="fg-grid-head">
+      <span class="fg-col">Problem shape</span>
+      <span></span>
+      <span class="fg-col right">AI method</span>
+    </div>
+
+    <div class="fg-row fg-r1" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">I have past examples with known outcomes and need to predict at scale</p>
+        <p class="fg-prob-desc">Historical labeled data exists. The signal is in images, sensor readings, or tabular records.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Supervised learning + computer vision</p>
+        <p class="fg-method-desc">Learns patterns from labeled examples. Scales to images and data no human team could process.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Global canopy mapping</p><p class="fg-ex-desc">Meta + WRI used a self-supervised vision model on satellite imagery to map individual tree canopy height globally at 1m resolution — impossible at human scale.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Economic development</p><p class="fg-ex-title">Poverty prediction from space</p><p class="fg-ex-desc">Stanford trained CNNs on satellite imagery using nighttime light as a proxy label, predicting poverty across regions with no ground-level survey data.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg-row fg-r2" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">I need to generate, translate, or have conversations with information at scale</p>
+        <p class="fg-prob-desc">The work involves language. Synthesis, summarization, triage, or direct communication with people — often across multiple languages.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Generative AI + LLMs</p>
+        <p class="fg-method-desc">Generates, translates, and converses. Powerful for language-heavy workflows where scale or multilingual reach is the barrier.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Maternal health</p><p class="fg-ex-title">Multilingual health messaging</p><p class="fg-ex-desc">Jacaranda Foundation fine-tuned LLMs for Swahili, Yoruba, and Zulu to deliver maternal health guidance via mobile — reaching populations excluded by English-only models.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Humanitarian response</p><p class="fg-ex-title">Field worker support tools</p><p class="fg-ex-desc">UNICEF tested multilingual translation models for humanitarian responders in DRC, and voice-first AI systems that allow queries via basic phone calls in low-connectivity areas.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg-row fg-r3" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">I'm making repeated decisions and need to learn and improve as I go</p>
+        <p class="fg-prob-desc">No complete dataset upfront. The world gives feedback after each action. Waiting to collect enough data before acting isn't an option.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Bandits + reinforcement learning</p>
+        <p class="fg-method-desc">Sequential decision-making under uncertainty. Balances exploring new options with exploiting what already works.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">Maternal health outreach</p><p class="fg-ex-desc">Harvard used restless multi-armed bandits to allocate limited health worker calls across beneficiaries in India — learning in real time which messages worked for whom.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Urban mobility</p><p class="fg-ex-title">Bike-share rebalancing</p><p class="fg-ex-desc">RL agents learn to reposition bikes across dock stations in real time, adapting continuously to demand patterns across a city without a fixed schedule.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg-row fg-r4" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">I need to allocate limited resources against known constraints</p>
+        <p class="fg-prob-desc">There's a clear objective, real limits, and the combinations are too many to search by hand. The problem is logistics, not prediction.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Optimization</p>
+        <p class="fg-method-desc">Solves a precisely formulated mathematical problem. Fast and exact when constraints are well-defined. The practitioner's job is to be precise about what's being maximized.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Healthcare</p><p class="fg-ex-title">Kidney exchange</p><p class="fg-ex-desc">Integer programming finds the set of donor-recipient swaps that saves the most lives given biological compatibility constraints — a combinatorial problem humans cannot solve manually.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Food systems</p><p class="fg-ex-title">Food rescue routing</p><p class="fg-ex-desc">Optimization matches volunteers, perishable donations, and recipient organizations dozens of times daily — maximizing food rescued within time and capacity constraints.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg-row fg-r5" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">My problem lives in a network — spread, connection, or influence matters</p>
+        <p class="fg-prob-desc">The relationships between entities are as important as the entities themselves. Disease spreads along networks. So does information, behavior, and risk.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Graph methods + network analysis</p>
+        <p class="fg-method-desc">Models entities and the relationships between them. Captures how things spread, cluster, or depend on each other across a connected system.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">HIV prevention among homeless youth</p><p class="fg-ex-desc">Influence maximization algorithms identified the peer leaders in social networks of homeless youth most likely to spread HIV prevention information to hard-to-reach members.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Climate</p><p class="fg-ex-title">Weather forecasting at global scale</p><p class="fg-ex-desc">DeepMind's GraphCast uses graph neural networks trained on 40 years of atmospheric data to forecast weather across the entire planet in under one minute.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg-row fg-r6" onclick="fgToggle(this)">
+      <div class="fg-cell">
+        <p class="fg-prob">The people I'm trying to reach or stop are watching me and adapting</p>
+        <p class="fg-prob-desc">My intervention changes behavior. An intelligent actor is observing my strategy and finding ways around it. The world is not passive.</p>
+      </div>
+      <div class="fg-cell fg-mid">
+        <svg class="fg-arr" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fg-cell">
+        <p class="fg-method">Game theory</p>
+        <p class="fg-method-desc">Models strategic interaction between actors who each respond to the other's moves. Assumes an intelligent opponent who is also optimizing.</p>
+      </div>
+      <div class="fg-expand">
+        <div class="fg-ex-grid">
+          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Anti-poaching patrols</p><p class="fg-ex-desc">PAWS uses Stackelberg security game models to randomize ranger patrol routes — so poachers cannot learn the pattern and avoid protected areas.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Security</p><p class="fg-ex-title">Airport security (ARMOR)</p><p class="fg-ex-desc">Deployed at LAX, game-theoretic models randomize checkpoint placement so that no predictable pattern can be exploited by an adversary watching over time.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    function fgToggle(row) {
+      const wasOpen = row.classList.contains('fg-open');
+      document.querySelectorAll('.fg-row.fg-open').forEach(r => r.classList.remove('fg-open'));
+      if (!wasOpen) row.classList.add('fg-open');
+    }
+    </script>
+  </div>
+
+  <div class="divider" style="margin:0 40px;"></div>
+
   <!-- SOURCES BY CATEGORY -->
   <div class="section-wrap">
     <div class="section-head">
