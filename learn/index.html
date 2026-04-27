@@ -83,7 +83,7 @@
   <div class="divider" style="margin:0 40px;"></div>
 
   <!-- FIELD GUIDE -->
-  <div class="section-wrap" style="padding-bottom:0;">
+  <div class="section-wrap" id="field-guide" style="padding-bottom:0;">
     <div class="section-head">
       <h2 class="section-title">The <em>field guide</em></h2>
       <span class="section-meta">Problem → method</span>
@@ -109,7 +109,8 @@
       .fg-ex-card { background:var(--warm-white); border:1px solid var(--border); border-radius:3px; padding:12px 14px; }
       .fg-ex-domain { font-size:9px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 5px; font-weight:500; }
       .fg-ex-title { font-family:'Fraunces',serif; font-size:13px; font-weight:300; color:var(--ink); margin:0 0 4px; line-height:1.35; }
-      .fg-ex-desc { font-size:11px; color:var(--slate); line-height:1.55; margin:0; }
+      .fg-ex-desc { font-size:11px; color:var(--slate); line-height:1.55; margin:0 0 6px; }
+      .fg-ex-src { font-size:9px; color:var(--muted); text-decoration:underline; display:block; }
       .fg-arr { width:13px; height:13px; flex-shrink:0; transition:transform .2s; }
       .fg-row.fg-open .fg-arr { transform:rotate(90deg); }
       /* row accent colors */
@@ -149,8 +150,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Global canopy mapping</p><p class="fg-ex-desc">Meta + WRI used a self-supervised vision model on satellite imagery to map individual tree canopy height globally at 1m resolution — impossible at human scale.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Economic development</p><p class="fg-ex-title">Poverty prediction from space</p><p class="fg-ex-desc">Stanford trained CNNs on satellite imagery using nighttime light as a proxy label, predicting poverty across regions with no ground-level survey data.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Global canopy mapping</p><p class="fg-ex-desc">Meta + WRI used a self-supervised vision model on satellite imagery to map individual tree canopy height globally at 1m resolution — impossible at human scale.</p><a class="fg-ex-src" href="https://sustainability.atmeta.com/blog/2024/04/22/using-artificial-intelligence-to-map-the-earths-forests/" target="_blank">Meta Sustainability Blog, 2024</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Economic development</p><p class="fg-ex-title">Poverty prediction from space</p><p class="fg-ex-desc">Stanford trained Convolutional Neural Networks on satellite imagery using nighttime light as a proxy label, predicting poverty across regions with no ground-level survey data.</p><a class="fg-ex-src" href="https://news.stanford.edu/stories/2016/08/combining-satellite-data-machine-learning-to-map-poverty" target="_blank">Stanford News, 2016</a></div>
         </div>
       </div>
     </div>
@@ -169,8 +170,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Maternal health</p><p class="fg-ex-title">Multilingual health messaging</p><p class="fg-ex-desc">Jacaranda Foundation fine-tuned LLMs for Swahili, Yoruba, and Zulu to deliver maternal health guidance via mobile — reaching populations excluded by English-only models.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Humanitarian response</p><p class="fg-ex-title">Field worker support tools</p><p class="fg-ex-desc">UNICEF tested multilingual translation models for humanitarian responders in DRC, and voice-first AI systems that allow queries via basic phone calls in low-connectivity areas.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Maternal health</p><p class="fg-ex-title">Multilingual health messaging</p><p class="fg-ex-desc">Jacaranda Foundation fine-tuned LLMs for Swahili, Yoruba, and Zulu to deliver maternal health guidance via mobile — reaching populations excluded by English-only models.</p><a class="fg-ex-src" href="https://jacarandahealth.org/jacaranda-launches-open-source-llm-in-five-african-languages/" target="_blank">Jacaranda Health</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Humanitarian response</p><p class="fg-ex-title">Field worker support tools</p><p class="fg-ex-desc">UNICEF tested multilingual translation models for humanitarian responders in DRC, and voice-first AI systems that allow queries via basic phone calls in low-connectivity areas.</p><a class="fg-ex-src" href="https://www.unicefventurefund.org/portfolio/leaving-no-local-emergency-responders-behind-eastern-drc-democratic-republic-congo" target="_blank">UNICEF Venture Fund</a></div>
         </div>
       </div>
     </div>
@@ -189,8 +190,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">Maternal health outreach</p><p class="fg-ex-desc">Harvard used restless multi-armed bandits to allocate limited health worker calls across beneficiaries in India — learning in real time which messages worked for whom.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Urban mobility</p><p class="fg-ex-title">Bike-share rebalancing</p><p class="fg-ex-desc">RL agents learn to reposition bikes across dock stations in real time, adapting continuously to demand patterns across a city without a fixed schedule.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">Maternal health outreach</p><p class="fg-ex-desc">Harvard used restless multi-armed bandits to allocate limited health worker calls across beneficiaries in India — learning in real time which messages worked for whom.</p><a class="fg-ex-src" href="https://teamcore.seas.harvard.edu/ai-assisting-ngos-improving-maternal-and-child-health-outcomes/" target="_blank">Harvard Teamcore</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Urban mobility</p><p class="fg-ex-title">Bike-share rebalancing</p><p class="fg-ex-desc">RL agents learn to reposition bikes across dock stations in real time, adapting continuously to demand patterns across a city without a fixed schedule.</p><a class="fg-ex-src" href="https://arxiv.org/abs/2402.03589" target="_blank">arxiv, 2024 — Citi Bike NYC</a></div>
         </div>
       </div>
     </div>
@@ -209,8 +210,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Healthcare</p><p class="fg-ex-title">Kidney exchange</p><p class="fg-ex-desc">Integer programming finds the set of donor-recipient swaps that saves the most lives given biological compatibility constraints — a combinatorial problem humans cannot solve manually.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Food systems</p><p class="fg-ex-title">Food rescue routing</p><p class="fg-ex-desc">Optimization matches volunteers, perishable donations, and recipient organizations dozens of times daily — maximizing food rescued within time and capacity constraints.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Healthcare</p><p class="fg-ex-title">Kidney exchange</p><p class="fg-ex-desc">Integer programming finds the set of donor-recipient swaps that saves the most lives given biological compatibility constraints — a combinatorial problem humans cannot solve manually.</p><a class="fg-ex-src" href="https://impact.stanford.edu/article/how-does-applied-economics-maximize-kidney-transplants" target="_blank">Stanford Impact Labs</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Food systems</p><p class="fg-ex-title">Food rescue routing</p><p class="fg-ex-desc">Optimization matches volunteers, perishable donations, and recipient organizations dozens of times daily — maximizing food rescued within time and capacity constraints.</p><a class="fg-ex-src" href="https://aaai.org/papers/13369-improving-efficiency-of-volunteer-based-food-rescue-operations/" target="_blank">AAAI 2020 — 412 Food Rescue</a></div>
         </div>
       </div>
     </div>
@@ -229,8 +230,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">HIV prevention among homeless youth</p><p class="fg-ex-desc">Influence maximization algorithms identified the peer leaders in social networks of homeless youth most likely to spread HIV prevention information to hard-to-reach members.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Climate</p><p class="fg-ex-title">Weather forecasting at global scale</p><p class="fg-ex-desc">DeepMind's GraphCast uses graph neural networks trained on 40 years of atmospheric data to forecast weather across the entire planet in under one minute.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Public health</p><p class="fg-ex-title">HIV prevention among homeless youth</p><p class="fg-ex-desc">Influence maximization algorithms identified the peer leaders in social networks of homeless youth most likely to spread HIV prevention information to hard-to-reach members.</p><a class="fg-ex-src" href="https://teamcore.seas.harvard.edu/hiv-prevention-homeless-youth/" target="_blank">Harvard Teamcore</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Climate</p><p class="fg-ex-title">Weather forecasting at global scale</p><p class="fg-ex-desc">DeepMind's GraphCast uses graph neural networks trained on 40 years of atmospheric data to forecast weather across the entire planet in under one minute.</p><a class="fg-ex-src" href="https://deepmind.google/blog/graphcast-ai-model-for-faster-and-more-accurate-global-weather-forecasting/" target="_blank">Google DeepMind</a></div>
         </div>
       </div>
     </div>
@@ -249,8 +250,8 @@
       </div>
       <div class="fg-expand">
         <div class="fg-ex-grid">
-          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Anti-poaching patrols</p><p class="fg-ex-desc">PAWS uses Stackelberg security game models to randomize ranger patrol routes — so poachers cannot learn the pattern and avoid protected areas.</p></div>
-          <div class="fg-ex-card"><p class="fg-ex-domain">Security</p><p class="fg-ex-title">Airport security (ARMOR)</p><p class="fg-ex-desc">Deployed at LAX, game-theoretic models randomize checkpoint placement so that no predictable pattern can be exploited by an adversary watching over time.</p></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Conservation</p><p class="fg-ex-title">Anti-poaching patrols</p><p class="fg-ex-desc">PAWS uses Stackelberg security game models to randomize ranger patrol routes — so poachers cannot learn the pattern and avoid protected areas.</p><a class="fg-ex-src" href="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/2710" target="_blank">AI Magazine, 2017</a></div>
+          <div class="fg-ex-card"><p class="fg-ex-domain">Security</p><p class="fg-ex-title">Airport security (ARMOR)</p><p class="fg-ex-desc">Deployed at LAX, game-theoretic models randomize checkpoint placement so that no predictable pattern can be exploited by an adversary watching over time.</p><a class="fg-ex-src" href="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/2173" target="_blank">AI Magazine, 2009</a></div>
         </div>
       </div>
     </div>

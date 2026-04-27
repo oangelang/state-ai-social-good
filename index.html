@@ -303,10 +303,17 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
     </div>
   </div>
   <div class="card-grid-3" id="resourceCards" style="margin-bottom:14px;"></div>
-  <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border);">
+  <!-- Field guide teaser -->
+  <a href="/learn#field-guide" style="display:block; margin-top:28px; padding:16px 20px; border:1px solid var(--border); border-left:3px solid var(--teal); background:var(--warm-white); border-radius:3px; text-decoration:none; color:inherit; transition:all .18s;" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderLeftColor='var(--teal)';this.style.borderTopColor='var(--border)';this.style.borderRightColor='var(--border)';this.style.borderBottomColor='var(--border)'">
+    <div style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:5px;">Field Guide</div>
+    <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:300;color:var(--ink);margin-bottom:4px;">Not sure which AI fits your problem?</div>
+    <div style="font-size:11px;color:var(--slate);">Six problem shapes mapped to the AI method that fits — with real-world deployments for each. → <span style="color:var(--teal);">See the field guide</span></div>
+  </a>
+
+  <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
     <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;">
       <div style="font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted);">Where we search — news, newsletters, communities & primary sources</div>
-      <a class="see-all" href="/learn" style="font-size:9px; padding:4px 10px;">All sources →</a>
+      <a class="see-all" href="/learn" style="font-size:9px; padding:4px 10px;">All resources →</a>
     </div>
     <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px;" id="learnCards"></div>
   </div>
