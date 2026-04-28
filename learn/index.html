@@ -273,6 +273,14 @@
       <h2 class="section-title">Sources we <em>track</em></h2>
       <span class="section-meta" id="sourceCount"></span>
     </div>
+    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:24px;">
+      <div class="filter-bar" id="sourceTypeFilters">
+        <button class="filter-btn active" data-type="all">All</button>
+      </div>
+      <label class="nyc-toggle" id="sourceCriticalToggle">
+        <span class="nyc-dot"></span>Critical only
+      </label>
+    </div>
     <div id="sourcesBody">
       <div style="color:var(--muted); font-size:12px;">Loading…</div>
     </div>
@@ -281,7 +289,7 @@
 
 <footer>
   <div class="footer-note">The State of AI for Social Good · <a href="/">Home</a> · <a href="https://aiforsocialimpact.substack.com/" target="_blank">AI × Social Impact Substack</a></div>
-  <div class="footer-note"><a href="/resources">All resources</a> · <a href="/ecosystem">Ecosystem</a> · <a href="/risks">Risks</a></div>
+  <div class="footer-note"><a href="/ecosystem">Ecosystem</a> · <a href="/risks">Risks</a> · <a href="/events">Events</a></div>
 </footer>
 
 <script>
@@ -290,6 +298,15 @@ const SUPABASE_KEY = 'sb_publishable_coMT61cOHCaGRYafmIIODw_eXyuzJ0X';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const TYPE_LABELS = {
+  research: 'Research', framework: 'Framework', journalism: 'Journalism',
+  report: 'Report', institute: 'Institute', journal: 'Journal',
+  newsletter: 'Newsletter', substack: 'Substack', podcast: 'Podcast',
+  coalition: 'Coalition', summit: 'Summit', grants: 'Grants',
+  funder: 'Funder', giving: 'Giving', platform: 'Platform',
+  education: 'Education', news: 'News', career: 'Career', community: 'Community',
+};
 
 const GROUPS = [
   { label: 'Research & field intelligence',   types: ['research','institute','journal','framework'] },
@@ -300,43 +317,104 @@ const GROUPS = [
   { label: 'Career & education',               types: ['career','education','platform'] },
 ];
 
+let allSources = [];
+let activeType = 'all';
+let criticalOnly = false;
+
 async function init() {
   const { data } = await db.from('resources').select('*').eq('status','published').order('is_critical', {ascending:false}).order('title');
-  const sources = data || [];
+  allSources = data || [];
 
-  document.getElementById('sourceCount').textContent = `${sources.length} sources`;
+  // Build type filter buttons from actual data
+  const types = [...new Set(allSources.map(r => r.resource_type).filter(Boolean))].sort();
+  const filterBar = document.getElementById('sourceTypeFilters');
+  types.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.type = t;
+    btn.textContent = TYPE_LABELS[t] || t;
+    btn.onclick = () => setType(t, btn);
+    filterBar.appendChild(btn);
+  });
 
+  document.getElementById('sourceCriticalToggle').onclick = () => {
+    criticalOnly = !criticalOnly;
+    document.getElementById('sourceCriticalToggle').classList.toggle('active', criticalOnly);
+    render();
+  };
+
+  render();
+}
+
+function setType(type, btn) {
+  activeType = type;
+  document.querySelectorAll('#sourceTypeFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render() {
+  let list = allSources;
+  if (criticalOnly) list = list.filter(r => r.is_critical);
+
+  document.getElementById('sourceCount').textContent = `${list.length} sources`;
+
+  const body = document.getElementById('sourcesBody');
+
+  if (activeType !== 'all') {
+    // Flat filtered list for a specific type
+    const filtered = list.filter(r => r.resource_type === activeType);
+    if (filtered.length === 0) {
+      body.innerHTML = '<div class="empty">No sources in this category yet.</div>';
+      return;
+    }
+    body.innerHTML = `<div class="source-group">${filtered.map(s => `
+      <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
+        <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
+        <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
+        <span class="source-arrow">→</span>
+      </a>`).join('')}
+    </div>`;
+    return;
+  }
+
+  // Grouped view for "All"
   let html = '';
   GROUPS.forEach(group => {
-    const items = sources.filter(s => group.types.includes(s.resource_type));
+    const items = list.filter(s => group.types.includes(s.resource_type));
     if (items.length === 0) return;
     html += `<div class="source-group">
       <div class="source-group-label">${esc(group.label)}</div>
       ${items.map(s => `
         <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
-          <span class="source-type">${esc(s.resource_type||'')}</span>
+          <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
           <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
           <span class="source-arrow">→</span>
         </a>`).join('')}
     </div>`;
   });
 
-  // anything not in a group
+  // Catch-all for types not in any group
   const coveredTypes = GROUPS.flatMap(g => g.types);
-  const rest = sources.filter(s => !coveredTypes.includes(s.resource_type));
+  const rest = list.filter(s => !coveredTypes.includes(s.resource_type));
   if (rest.length > 0) {
     html += `<div class="source-group">
       <div class="source-group-label">Other</div>
       ${rest.map(s => `
         <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
-          <span class="source-type">${esc(s.resource_type||'')}</span>
+          <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
           <span class="source-name">${esc(s.title)}</span>
           <span class="source-arrow">→</span>
         </a>`).join('')}
     </div>`;
   }
 
-  document.getElementById('sourcesBody').innerHTML = html;
+  if (!html) {
+    body.innerHTML = '<div class="empty">No sources match this filter.</div>';
+    return;
+  }
+
+  body.innerHTML = html;
 }
 
 init();
