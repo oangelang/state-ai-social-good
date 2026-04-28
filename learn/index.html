@@ -22,12 +22,14 @@
 
 .source-group { margin-bottom: 36px; }
 .source-group-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.source-row { display: flex; align-items: baseline; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; transition: all 0.15s; }
+.source-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; transition: all 0.15s; }
 .source-row:last-child { border-bottom: none; }
 .source-row:hover .source-name { color: var(--teal); }
-.source-type { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); width: 110px; flex-shrink: 0; }
-.source-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 300; color: var(--ink); flex: 1; }
-.source-arrow { font-size: 11px; color: var(--teal); opacity: 0; transition: opacity 0.15s; }
+.source-type { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); width: 110px; flex-shrink: 0; padding-top: 3px; }
+.source-body { flex: 1; }
+.source-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 300; color: var(--ink); display: block; margin-bottom: 3px; line-height: 1.3; }
+.source-desc { font-size: 11px; color: var(--slate); line-height: 1.55; }
+.source-arrow { font-size: 11px; color: var(--teal); opacity: 0; transition: opacity 0.15s; flex-shrink: 0; padding-top: 3px; }
 .source-row:hover .source-arrow { opacity: 1; }
 </style>
 </head>
@@ -325,9 +327,13 @@ async function init() {
   const { data } = await db.from('resources').select('*').eq('status','published').order('is_critical', {ascending:false}).order('title');
   allSources = data || [];
 
+  // Wire up the "All" button
+  const filterBar = document.getElementById('sourceTypeFilters');
+  const allBtn = filterBar.querySelector('[data-type="all"]');
+  allBtn.onclick = () => setType('all', allBtn);
+
   // Build type filter buttons from actual data
   const types = [...new Set(allSources.map(r => r.resource_type).filter(Boolean))].sort();
-  const filterBar = document.getElementById('sourceTypeFilters');
   types.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'filter-btn';
@@ -353,6 +359,17 @@ function setType(type, btn) {
   render();
 }
 
+function rowHTML(s) {
+  return `<a class="source-row" href="${esc(s.url||'#')}" target="_blank">
+    <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
+    <span class="source-body">
+      <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
+      ${s.description ? `<span class="source-desc">${esc(s.description)}</span>` : ''}
+    </span>
+    <span class="source-arrow">→</span>
+  </a>`;
+}
+
 function render() {
   let list = allSources;
   if (criticalOnly) list = list.filter(r => r.is_critical);
@@ -368,13 +385,7 @@ function render() {
       body.innerHTML = '<div class="empty">No sources in this category yet.</div>';
       return;
     }
-    body.innerHTML = `<div class="source-group">${filtered.map(s => `
-      <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
-        <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
-        <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
-        <span class="source-arrow">→</span>
-      </a>`).join('')}
-    </div>`;
+    body.innerHTML = `<div class="source-group">${filtered.map(rowHTML).join('')}</div>`;
     return;
   }
 
@@ -385,12 +396,7 @@ function render() {
     if (items.length === 0) return;
     html += `<div class="source-group">
       <div class="source-group-label">${esc(group.label)}</div>
-      ${items.map(s => `
-        <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
-          <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
-          <span class="source-name">${esc(s.title)}${s.is_critical ? ' <span style="color:var(--gold);font-size:10px;">★</span>' : ''}</span>
-          <span class="source-arrow">→</span>
-        </a>`).join('')}
+      ${items.map(rowHTML).join('')}
     </div>`;
   });
 
@@ -400,12 +406,7 @@ function render() {
   if (rest.length > 0) {
     html += `<div class="source-group">
       <div class="source-group-label">Other</div>
-      ${rest.map(s => `
-        <a class="source-row" href="${esc(s.url||'#')}" target="_blank">
-          <span class="source-type">${esc(TYPE_LABELS[s.resource_type]||s.resource_type||'')}</span>
-          <span class="source-name">${esc(s.title)}</span>
-          <span class="source-arrow">→</span>
-        </a>`).join('')}
+      ${rest.map(rowHTML).join('')}
     </div>`;
   }
 
