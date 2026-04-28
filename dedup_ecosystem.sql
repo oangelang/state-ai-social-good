@@ -5,18 +5,17 @@
 SELECT id, name, ecosystem_category, created_at
 FROM ecosystem
 WHERE id NOT IN (
-  SELECT MAX(id)
+  SELECT DISTINCT ON (name) id
   FROM ecosystem
-  GROUP BY name
-)
-ORDER BY name;
+  ORDER BY name, created_at DESC
+);
 
 -- Then run the delete:
 DELETE FROM ecosystem
 WHERE id NOT IN (
-  SELECT MAX(id)
+  SELECT DISTINCT ON (name) id
   FROM ecosystem
-  GROUP BY name
+  ORDER BY name, created_at DESC
 );
 
 -- Verify — should show one row per name:
