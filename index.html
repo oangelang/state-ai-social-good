@@ -192,6 +192,17 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 .form-success-desc { font-size: 12px; color: var(--slate); line-height: 1.6; }
 .form-error { font-size: 11px; color: var(--rust); margin-top: 8px; }
 
+/* ── FEEDBACK SECTION ── */
+.feedback-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.feedback-eyebrow { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+.feedback-desc { font-size: 13px; color: var(--slate); line-height: 1.8; margin-bottom: 18px; }
+.feedback-pillars { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 0; }
+.feedback-pillar { display: flex; gap: 11px; align-items: flex-start; font-size: 12px; color: var(--slate); line-height: 1.55; }
+.feedback-pillar::before { content: '—'; color: var(--teal); flex-shrink: 0; margin-top: 1px; }
+.feedback-form-wrap { background: var(--warm-white); border: 1px solid var(--border); border-radius: 4px; padding: 28px 30px; }
+.feedback-form-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 300; margin-bottom: 18px; color: var(--ink); }
+.feedback-form-title em { font-style: italic; color: var(--teal); }
+
 /* ── ANIMATIONS ── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
@@ -249,6 +260,9 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
   .event-row { grid-template-columns: 48px 1fr; gap: 12px; padding: 12px 14px; }
   .event-date-col { padding-right: 12px; }
   .event-loc { display: none; }
+
+  .feedback-inner { grid-template-columns: 1fr; gap: 28px; }
+  .feedback-form-wrap { padding: 20px; }
 
   footer { padding: 20px 16px; flex-direction: column; gap: 8px; text-align: center; }
 }
@@ -361,6 +375,49 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
   <div class="events-list" id="eventsList"></div>
 </div>
 
+<div class="divider"></div>
+
+<!-- FEEDBACK -->
+<div class="section-wrap fade-in" id="feedback">
+  <div class="feedback-inner">
+    <div>
+      <div class="feedback-eyebrow">Living document</div>
+      <h2 class="section-title" style="margin-bottom:18px;">Help <em>build this</em></h2>
+      <p class="feedback-desc">This is research — not a finished product. No single person or team has the full picture of how AI is actually being deployed for social good, what's failing quietly, or what's working without press coverage.</p>
+      <p class="feedback-desc" style="margin-bottom:22px;">We believe the field gets better when practitioners, funders, technologists, and community members build it together. If you know something we don't, we want to hear it.</p>
+      <ul class="feedback-pillars">
+        <li class="feedback-pillar">A deployment we haven't mapped — something actually running in the field</li>
+        <li class="feedback-pillar">A caution we're glossing over or getting wrong</li>
+        <li class="feedback-pillar">An organization, funder, or ecosystem player we missed</li>
+        <li class="feedback-pillar">A resource that changed how you think about this work</li>
+        <li class="feedback-pillar">Something that doesn't fit any of the above — send it anyway</li>
+      </ul>
+    </div>
+    <div class="feedback-form-wrap">
+      <div class="feedback-form-title">Share what <em>you know</em></div>
+      <div id="feedbackFormBody">
+        <div class="form-group">
+          <label class="form-label">Your message <span>*</span></label>
+          <textarea class="form-textarea" id="fbMessage" placeholder="What do you know that we don't?" rows="5"></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Name <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
+            <input class="form-input" id="fbName" type="text" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
+            <input class="form-input" id="fbEmail" type="email" placeholder="your@email.com">
+          </div>
+        </div>
+        <div id="fbError" class="form-error" style="display:none;"></div>
+        <button class="form-submit" id="fbSubmit" onclick="submitFeedback()">Send feedback →</button>
+        <p style="font-size:10px;color:var(--muted);margin-top:12px;line-height:1.6;">Your feedback goes directly to the research team. We read everything. We won't spam you.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- NYC BANNER -->
 <div class="nyc-band" id="nyc">
   <div class="nyc-inner">
@@ -376,6 +433,7 @@ footer { padding: 28px 40px; display: flex; justify-content: space-between; alig
 <footer>
   <div class="footer-note">The State of AI for Social Good · Curated by <a href="https://www.linkedin.com/in/angelaonwahng" target="_blank">Angela</a> · <a href="https://aiforsocialimpact.substack.com/" target="_blank">AI × Social Impact Substack</a> · NYC</div>
   <div class="footer-note">
+    <a href="#feedback">Share feedback</a> ·
     <button onclick="openModal('org-modal')">Suggest an org</button> ·
     <button onclick="openModal('event-modal')">Submit an event</button> ·
     <button onclick="openModal('resource-modal')">Share a resource</button>
@@ -590,6 +648,34 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── UTIL ─────────────────────────────────────────────────────────────────────
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── FEEDBACK ──────────────────────────────────────────────────────────────────
+async function submitFeedback() {
+  const message = document.getElementById('fbMessage').value.trim();
+  const errEl = document.getElementById('fbError');
+  errEl.style.display = 'none';
+  if (!message) { errEl.textContent = 'Please add a message before sending.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('fbSubmit');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await db.from('feedback').insert({
+    message,
+    name: document.getElementById('fbName').value.trim() || null,
+    email: document.getElementById('fbEmail').value.trim() || null,
+    page: 'homepage',
+  });
+  if (error) {
+    errEl.textContent = 'Something went wrong — try again or email us directly.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Send feedback →';
+    return;
+  }
+  document.getElementById('feedbackFormBody').innerHTML = `
+    <div class="form-success">
+      <div class="form-success-icon">✦</div>
+      <div class="form-success-title">Thank you for <em>contributing</em></div>
+      <p class="form-success-desc">We read every submission. The field gets better when more people share what they actually know — thank you for being part of that.</p>
+    </div>`;
+}
 
 // ── MODALS ────────────────────────────────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
