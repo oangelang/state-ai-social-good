@@ -113,11 +113,9 @@ async function init() {
 
   if (domain) {
     const sdgs = (domain.sdgs || []).join(', ');
-    document.getElementById('statsSection').innerHTML = `
-      <div class="stat-row">
-        <div class="stat-box"><div class="stat-label">Deployed</div><div class="stat-val">${domain.deployed_count || '—'}</div></div>
-        ${sdgs ? `<div class="stat-box"><div class="stat-label">SDGs</div><div class="stat-val" style="font-size:22px;">${esc(sdgs)}</div></div>` : ''}
-      </div>`;
+    document.getElementById('statsSection').innerHTML = sdgs
+      ? `<div class="stat-row"><div class="stat-box"><div class="stat-label">SDGs</div><div class="stat-val" style="font-size:22px;">${esc(sdgs)}</div></div></div>`
+      : '';
   }
 
   // Panel
