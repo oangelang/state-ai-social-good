@@ -11,20 +11,31 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #111111;
-  --card-bg: #1c1c1c;
-  --amber: #f5a800;
-  --amber-dim: rgba(245,168,0,0.15);
-  --text: #f5f2ec;
-  --text-muted: rgba(245,242,236,0.5);
-  --text-faint: rgba(245,242,236,0.2);
-  --border: rgba(245,242,236,0.08);
+  --cream:     #FDF8EE;
+  --amber:     #F5C84A;
+  --orange:    #F0924A;
+  --deep:      #C84010;
+  --deeper:    #8a2a06;
+  --dark-text: #1a0800;
+  --muted:     rgba(26,8,0,0.52);
+  --faint:     rgba(26,8,0,0.25);
+  --border:    rgba(26,8,0,0.12);
+  --card-bg:   rgba(253,248,238,0.88);
+  --bar-bg:    rgba(253,248,238,0.94);
+  --amber-dim: rgba(200,64,16,0.08);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(170deg, #FDF8EE 0%, #F5C84A 30%, #F0924A 62%, #C84010 100%);
+  z-index: 0;
 }
 
 html, body {
   height: 100%;
-  background: var(--bg);
-  color: var(--text);
+  background: transparent;
+  color: var(--dark-text);
   font-family: 'Jost', sans-serif;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
@@ -38,6 +49,7 @@ html, body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1;
 }
 
 #card-screen {
@@ -71,7 +83,7 @@ html, body {
   font-size: 13px;
   font-weight: 400;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: var(--muted);
   margin-bottom: 40px;
   display: inline-block;
   position: relative;
@@ -84,7 +96,7 @@ html, body {
   left: 0;
   right: -8px;
   height: 1.5px;
-  background: var(--amber);
+  background: var(--deep);
   border-radius: 0 1px 1px 0;
   clip-path: polygon(0 30%, 20% 0%, 40% 50%, 60% 10%, 80% 45%, 100% 20%, 100% 100%, 0 100%);
 }
@@ -95,17 +107,18 @@ html, body {
   font-weight: 300;
   line-height: 1.15;
   margin-bottom: 10px;
+  color: var(--dark-text);
 }
 
 .home-heading em {
   font-style: italic;
-  color: var(--amber);
+  color: var(--deep);
 }
 
 .home-sub {
   font-size: 13px;
   font-weight: 300;
-  color: var(--text-muted);
+  color: var(--muted);
   margin-bottom: 36px;
   line-height: 1.6;
 }
@@ -119,20 +132,21 @@ html, body {
 .domain-tile {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--amber);
+  border-left: 3px solid var(--orange);
   border-radius: 4px;
   padding: 18px 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background 0.15s ease, border-left-color 0.15s ease;
+  transition: background 0.15s ease;
   -webkit-user-select: none;
   user-select: none;
+  backdrop-filter: blur(4px);
 }
 
 .domain-tile:active {
-  background: rgba(245,168,0,0.08);
+  background: rgba(245,200,74,0.28);
 }
 
 .tile-left {
@@ -145,17 +159,18 @@ html, body {
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.01em;
+  color: var(--dark-text);
 }
 
 .tile-count {
   font-size: 11px;
   font-weight: 300;
-  color: var(--text-muted);
+  color: var(--muted);
   letter-spacing: 0.04em;
 }
 
 .tile-arrow {
-  color: var(--amber);
+  color: var(--deep);
   font-size: 18px;
   line-height: 1;
   opacity: 0.7;
@@ -165,7 +180,7 @@ html, body {
   margin-top: auto;
   padding-top: 36px;
   font-size: 11px;
-  color: var(--text-faint);
+  color: var(--faint);
   letter-spacing: 0.04em;
   text-align: center;
 }
@@ -177,7 +192,7 @@ html, body {
   left: 0;
   right: 0;
   z-index: 10;
-  background: var(--amber);
+  background: var(--deep);
   height: 4px;
 }
 
@@ -187,7 +202,8 @@ html, body {
   left: 0;
   right: 0;
   z-index: 10;
-  background: var(--bg);
+  background: var(--bar-bg);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   padding: 14px 20px 12px;
@@ -198,7 +214,7 @@ html, body {
 .back-btn {
   background: none;
   border: none;
-  color: var(--amber);
+  color: var(--deep);
   font-family: 'Jost', sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -216,7 +232,7 @@ html, body {
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--muted);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -226,7 +242,7 @@ html, body {
 .card-progress-text {
   font-size: 11px;
   font-weight: 300;
-  color: var(--text-muted);
+  color: var(--muted);
   flex-shrink: 0;
 }
 
@@ -243,7 +259,7 @@ html, body {
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--amber);
+  background: var(--deep);
   transition: width 0.3s ease;
 }
 
@@ -262,6 +278,7 @@ html, body {
   width: 100%;
   max-width: 480px;
   background: var(--card-bg);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 36px 28px 28px;
@@ -277,10 +294,10 @@ html, body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 120px;
   line-height: 1;
-  color: var(--text-faint);
+  color: var(--dark-text);
   pointer-events: none;
   font-weight: 300;
-  opacity: 0.4;
+  opacity: 0.07;
 }
 
 .question-text {
@@ -288,7 +305,7 @@ html, body {
   font-size: clamp(20px, 5vw, 26px);
   font-weight: 400;
   line-height: 1.45;
-  color: var(--text);
+  color: var(--dark-text);
   position: relative;
   z-index: 1;
 }
@@ -296,7 +313,7 @@ html, body {
 .context-note {
   margin-top: 20px;
   padding: 12px 16px;
-  border-left: 2px solid var(--amber);
+  border-left: 2px solid var(--deep);
   background: var(--amber-dim);
   border-radius: 0 4px 4px 0;
   position: relative;
@@ -307,7 +324,7 @@ html, body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 14px;
   font-style: italic;
-  color: var(--text-muted);
+  color: var(--muted);
   line-height: 1.55;
 }
 
@@ -318,7 +335,8 @@ html, body {
   left: 0;
   right: 0;
   z-index: 10;
-  background: var(--bg);
+  background: var(--bar-bg);
+  backdrop-filter: blur(10px);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -335,7 +353,7 @@ html, body {
   letter-spacing: 0.05em;
   background: none;
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: var(--muted);
   border-radius: 4px;
   padding: 10px 20px;
   cursor: pointer;
@@ -349,8 +367,8 @@ html, body {
 }
 
 .nav-btn.primary {
-  border-color: var(--amber);
-  color: var(--amber);
+  border-color: var(--deep);
+  color: var(--deep);
 }
 
 .nav-btn.primary:active {
@@ -365,7 +383,7 @@ html, body {
 .swipe-hint {
   font-size: 10px;
   font-weight: 300;
-  color: var(--text-faint);
+  color: var(--faint);
   letter-spacing: 0.04em;
   text-align: center;
 }
@@ -393,6 +411,8 @@ html, body {
 </style>
 </head>
 <body>
+
+<div class="bg"></div>
 
 <!-- ── HOME SCREEN ── -->
 <div id="home-screen">
@@ -426,7 +446,7 @@ html, body {
 
   <div class="card-stage" id="card-stage">
     <div class="question-card" id="question-card">
-      <div class="card-watermark">&ldquo;</div>
+      <div class="card-watermark">&rdquo;</div>
       <p class="question-text" id="question-text"></p>
       <div class="context-note" id="context-note" style="display:none">
         <p id="context-text"></p>
