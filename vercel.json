@@ -8,7 +8,8 @@
     { "source": "/events",        "destination": "/events/index.html" },
     { "source": "/risks",         "destination": "/risks/index.html" },
     { "source": "/learn",         "destination": "/learn/index.html" },
-    { "source": "/admin",         "destination": "/admin/index.html" }
+    { "source": "/admin",         "destination": "/admin/index.html" },
+    { "source": "/questions",     "destination": "/questions/index.html" }
   ],
   "crons": [
     { "path": "/api/daily-research",    "schedule": "0 7 * * *"   },

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Questions — AI for Social Good</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:     #FDF8EE;
+  --amber:     #F5C84A;
+  --orange:    #F0924A;
+  --deep:      #C84010;
+  --deeper:    #8a2a06;
+  --dark-text: #1a0800;
+  --muted:     rgba(26,8,0,0.52);
+  --faint:     rgba(26,8,0,0.25);
+  --border:    rgba(26,8,0,0.12);
+  --card-bg:   rgba(253,248,238,0.88);
+  --bar-bg:    rgba(253,248,238,0.94);
+  --amber-dim: rgba(200,64,16,0.08);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(170deg, #FDF8EE 0%, #F5C84A 30%, #F0924A 62%, #C84010 100%);
+  z-index: 0;
+}
+
+html, body {
+  height: 100%;
+  background: transparent;
+  color: var(--dark-text);
+  font-family: 'Jost', sans-serif;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── SCREENS ── */
+#home-screen, #card-screen {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1;
+}
+
+#card-screen {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+#card-screen.active {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+#home-screen.hidden {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* ── HOME SCREEN ── */
+.home-inner {
+  min-height: 100%;
+  padding: 52px 20px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 40px;
+  display: inline-block;
+  position: relative;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: -8px;
+  height: 1.5px;
+  background: var(--deep);
+  border-radius: 0 1px 1px 0;
+  clip-path: polygon(0 30%, 20% 0%, 40% 50%, 60% 10%, 80% 45%, 100% 20%, 100% 100%, 0 100%);
+}
+
+.home-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(30px, 8vw, 42px);
+  font-weight: 300;
+  line-height: 1.15;
+  margin-bottom: 10px;
+  color: var(--dark-text);
+}
+
+.home-heading em {
+  font-style: italic;
+  color: var(--deep);
+}
+
+.home-sub {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--muted);
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+.domain-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.domain-tile {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  border-radius: 4px;
+  padding: 18px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  backdrop-filter: blur(4px);
+}
+
+.domain-tile:active {
+  background: rgba(245,200,74,0.28);
+}
+
+.tile-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tile-name {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--dark-text);
+}
+
+.tile-count {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.tile-arrow {
+  color: var(--deep);
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.home-footer {
+  margin-top: auto;
+  padding-top: 36px;
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+/* ── CARD SCREEN ── */
+.card-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--deep);
+  height: 4px;
+}
+
+.card-header {
+  position: fixed;
+  top: 4px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--bar-bg);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--deep);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.domain-badge {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-progress-text {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 2px;
+  background: var(--border);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--deep);
+  transition: width 0.3s ease;
+}
+
+/* Card stage */
+.card-stage {
+  position: fixed;
+  inset: 58px 0 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.question-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 36px 28px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
+}
+
+.card-watermark {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 120px;
+  line-height: 1;
+  color: var(--dark-text);
+  pointer-events: none;
+  font-weight: 300;
+  opacity: 0.07;
+}
+
+.question-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--dark-text);
+  position: relative;
+  z-index: 1;
+}
+
+.context-note {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border-left: 2px solid var(--deep);
+  background: var(--amber-dim);
+  border-radius: 0 4px 4px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.context-note p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* Card nav footer */
+.card-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--bar-bg);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  gap: 12px;
+}
+
+.nav-btn {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 80px;
+}
+
+.nav-btn:active {
+  background: var(--border);
+}
+
+.nav-btn.primary {
+  border-color: var(--deep);
+  color: var(--deep);
+}
+
+.nav-btn.primary:active {
+  background: var(--amber-dim);
+}
+
+.nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.swipe-hint {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+/* ── CARD ANIMATIONS ── */
+.question-card.slide-out-left {
+  transform: translateX(-120%);
+  opacity: 0;
+}
+
+.question-card.slide-out-right {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.question-card.slide-in-left {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.question-card.slide-in-right {
+  transform: translateX(-120%);
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<!-- ── HOME SCREEN ── -->
+<div id="home-screen">
+  <div class="home-inner">
+    <span class="logo">AI for Social Good</span>
+
+    <h1 class="home-heading">
+      Conversation<br><em>starters</em>
+    </h1>
+    <p class="home-sub">Pick a domain. Work through the cards at your own pace.</p>
+
+    <div class="domain-grid" id="domain-grid"></div>
+
+    <div class="home-footer">Tap a domain to begin &nbsp;·&nbsp; Swipe to navigate</div>
+  </div>
+</div>
+
+<!-- ── CARD SCREEN ── -->
+<div id="card-screen">
+  <div class="card-top-bar"></div>
+
+  <div class="card-header">
+    <button class="back-btn" id="back-btn">&#8592; Domains</button>
+    <span class="domain-badge" id="domain-badge"></span>
+    <span class="card-progress-text" id="progress-text"></span>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar"></div>
+  </div>
+
+  <div class="card-stage" id="card-stage">
+    <div class="question-card" id="question-card">
+      <div class="card-watermark">&rdquo;</div>
+      <p class="question-text" id="question-text"></p>
+      <div class="context-note" id="context-note" style="display:none">
+        <p id="context-text"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-nav">
+    <button class="nav-btn" id="prev-btn">Prev</button>
+    <span class="swipe-hint">swipe left / right</span>
+    <button class="nav-btn primary" id="next-btn">Next</button>
+  </div>
+</div>
+
+<script>
+const DOMAINS = [
+  {
+    name: 'General',
+    questions: [
+      { q: 'What brought you here today, and what area of impact are you most interested in?' },
+      { q: 'Name one AI for Good project you\'ve heard of that you actually believe in. What makes it different from the ones that feel like branding?' },
+      { q: 'What conversations aren\'t being had that we need to bring forth around AI and impact?' },
+      { q: 'What would have to be true in ten years for you to say AI for good actually worked?' },
+      { q: 'What\'s a well-intentioned AI for Good project that failed or caused harm? What went wrong, and was it preventable?' },
+    ]
+  },
+  {
+    name: 'Climate',
+    questions: [
+      { q: 'The AI companies building climate solutions are often significant contributors to the problem. Does that tension change how you think about who should lead this work?', context: 'AI companies face intense scrutiny for using dirty energy, often truck-mounted gas turbines operating without standard permits.' },
+      { q: 'Are there AI applications in climate adaptation, stabilization, and mitigation that you think are underinvested?' },
+      { q: 'What\'s the role of AI in accelerating the energy transition, and where is it overhyped?' },
+      { q: 'As mitigation windows close, how do you think about AI\'s role in adaptation for communities that didn\'t cause the problem?' },
+      { q: 'Who in this space — researcher, practitioner, startup, org — is doing work that genuinely excites you?' },
+    ]
+  },
+  {
+    name: 'Health',
+    questions: [
+      { q: 'What AI applications in health do you think are genuinely close to meaningful deployment?' },
+      { q: 'How are you thinking about bias in clinical AI, especially for populations historically underrepresented in training data?' },
+      { q: 'What\'s your view on AI in mental health? Where does it help, and where does it risk causing harm?' },
+      { q: 'How do you navigate FDA regulatory pathways or clinical validation for AI health tools?' },
+      { q: 'What would it take for AI-powered health tools to actually reach rural or under-resourced communities?' },
+      { q: 'Where does AI in health break down at the population level, and what would it take to fix that?' },
+      { q: 'Who in this space — researcher, practitioner, startup, org — is doing work that genuinely excites you?' },
+    ]
+  },
+  {
+    name: 'Education',
+    questions: [
+      { q: 'How do you think about AI\'s role in personalized learning without widening the gap between well-resourced and under-resourced students?' },
+      { q: 'What\'s your experience using AI to support teachers rather than replace them?' },
+      { q: 'What are the specific risks of AI deployment in K-12 settings, and who is accountable when something goes wrong?' },
+      { q: 'What does meaningful AI literacy look like at the K-12 level, and who should be responsible for delivering it?' },
+      { q: 'What does the future of higher education look like when all of the world\'s information is at our fingertips?' },
+      { q: 'Are there AI applications in adult education or workforce reskilling that you think are underexplored?' },
+      { q: 'Who in this space — researcher, practitioner, startup, org — is doing work that genuinely excites you?' },
+    ]
+  },
+  {
+    name: 'Economic Mobility',
+    questions: [
+      { q: 'How are you using AI to expand access to financial services for people who are credit-invisible or unbanked?' },
+      { q: 'What\'s your take on AI in workforce development? Is it a bridge or a barrier for low-wage workers?' },
+      { q: 'How do you design AI-powered hiring or matching tools that reduce rather than reproduce systemic bias?' },
+      { q: 'Are there AI applications in small business support or community lending that you find promising?' },
+      { q: 'How do you think about data ownership and economic benefit-sharing when communities are the data source?' },
+      { q: 'Who in this space — researcher, practitioner, startup, org — is doing work that genuinely excites you?' },
+    ]
+  },
+  {
+    name: 'AI Safety & Policy',
+    questions: [
+      { q: 'What does "safe" actually mean in a social impact context — safe for whom, and who decides?' },
+      { q: 'Which existing regulatory frameworks are you finding actually useful in practice versus performative?' },
+      { q: 'What\'s the right role for civil society in AI governance? Leaders, advocates at the table, or watchdogs outside it?' },
+      { q: 'How do you audit an AI system for bias when the organization deploying it controls the audit?' },
+      { q: 'What do you think the government\'s role will be in AI safety? Will they regulate this, and if so, when?' },
+      { q: 'Have you ever shipped something or recommended something you later thought caused harm? What did you do about it?' },
+    ]
+  },
+];
+
+// ── STATE ──
+let currentDomain = null;
+let currentIndex = 0;
+
+// ── DOM REFS ──
+const homeScreen   = document.getElementById('home-screen');
+const cardScreen   = document.getElementById('card-screen');
+const domainGrid   = document.getElementById('domain-grid');
+const domainBadge  = document.getElementById('domain-badge');
+const progressText = document.getElementById('progress-text');
+const progressBar  = document.getElementById('progress-bar');
+const questionText = document.getElementById('question-text');
+const contextNote  = document.getElementById('context-note');
+const contextText  = document.getElementById('context-text');
+const questionCard = document.getElementById('question-card');
+const prevBtn      = document.getElementById('prev-btn');
+const nextBtn      = document.getElementById('next-btn');
+const backBtn      = document.getElementById('back-btn');
+
+// ── BUILD HOME ──
+DOMAINS.forEach((domain, i) => {
+  const tile = document.createElement('div');
+  tile.className = 'domain-tile';
+  tile.innerHTML = `
+    <div class="tile-left">
+      <span class="tile-name">${domain.name}</span>
+      <span class="tile-count">${domain.questions.length} questions</span>
+    </div>
+    <span class="tile-arrow">›</span>
+  `;
+  tile.addEventListener('click', () => openDomain(i));
+  domainGrid.appendChild(tile);
+});
+
+// ── NAVIGATION ──
+function openDomain(index) {
+  currentDomain = index;
+  currentIndex = 0;
+  domainBadge.textContent = DOMAINS[index].name;
+  renderCard(null);
+  homeScreen.classList.add('hidden');
+  cardScreen.classList.add('active');
+}
+
+function goHome() {
+  cardScreen.classList.remove('active');
+  homeScreen.classList.remove('hidden');
+  currentDomain = null;
+}
+
+function renderCard(direction) {
+  const domain = DOMAINS[currentDomain];
+  const total = domain.questions.length;
+  const q = domain.questions[currentIndex];
+
+  // Progress
+  progressText.textContent = `${currentIndex + 1} / ${total}`;
+  progressBar.style.width = `${((currentIndex + 1) / total) * 100}%`;
+
+  // Button states
+  prevBtn.disabled = currentIndex === 0;
+  const isLast = currentIndex === total - 1;
+  nextBtn.textContent = isLast ? 'Done' : 'Next';
+  nextBtn.classList.toggle('primary', true);
+
+  if (direction === null) {
+    questionText.textContent = q.q;
+    if (q.context) {
+      contextText.textContent = q.context;
+      contextNote.style.display = 'block';
+    } else {
+      contextNote.style.display = 'none';
+    }
+    return;
+  }
+
+  // Slide animation
+  const outClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+  const inClass  = direction === 'next' ? 'slide-in-left'  : 'slide-in-right';
+
+  questionCard.style.transition = 'none';
+  questionCard.classList.add(outClass);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      questionCard.classList.remove(outClass);
+      questionCard.classList.add(inClass);
+      questionCard.style.transition = '';
+
+      questionText.textContent = q.q;
+      if (q.context) {
+        contextText.textContent = q.context;
+        contextNote.style.display = 'block';
+      } else {
+        contextNote.style.display = 'none';
+      }
+
+      requestAnimationFrame(() => {
+        questionCard.classList.remove(inClass);
+      });
+    });
+  });
+}
+
+function advance(direction) {
+  const domain = DOMAINS[currentDomain];
+  if (direction === 'next') {
+    if (currentIndex === domain.questions.length - 1) {
+      goHome();
+      return;
+    }
+    currentIndex++;
+    renderCard('next');
+  } else {
+    if (currentIndex === 0) return;
+    currentIndex--;
+    renderCard('prev');
+  }
+}
+
+// ── BUTTON EVENTS ──
+nextBtn.addEventListener('click', () => advance('next'));
+prevBtn.addEventListener('click', () => advance('prev'));
+backBtn.addEventListener('click', goHome);
+
+// ── SWIPE ──
+let touchStartX = 0;
+let touchStartY = 0;
+let swiping = false;
+
+document.getElementById('card-stage').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  swiping = true;
+}, { passive: true });
+
+document.getElementById('card-stage').addEventListener('touchend', e => {
+  if (!swiping) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  swiping = false;
+  if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+  if (dx < 0) advance('next');
+  else advance('prev');
+}, { passive: true });
+</script>
+</body>
+</html>
